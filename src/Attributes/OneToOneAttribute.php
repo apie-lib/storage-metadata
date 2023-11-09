@@ -25,7 +25,7 @@ class OneToOneAttribute
      */
     public function getReflectionProperty(ReflectionClass $targetClass, object $instance): ?ReflectionProperty
     {
-        $property = ($this->declaredClass ?? $targetClass)->getProperty($this->propertyName);
+        $property = ($this->declaredClass ? new ReflectionClass($this->declaredClass) : $targetClass)->getProperty($this->propertyName);
         try {
             $property->isInitialized($instance);
             return $property;

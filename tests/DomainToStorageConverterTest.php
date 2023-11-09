@@ -4,6 +4,9 @@ namespace Apie\Tests\StorageMetadata;
 use Apie\Core\Entities\EntityInterface;
 use Apie\Fixtures\Entities\Order;
 use Apie\Fixtures\Entities\OrderLine;
+use Apie\Fixtures\Entities\Polymorphic\Animal;
+use Apie\Fixtures\Entities\Polymorphic\AnimalIdentifier;
+use Apie\Fixtures\Entities\Polymorphic\Elephant;
 use Apie\Fixtures\Entities\UserWithAddress;
 use Apie\Fixtures\Enums\OrderStatus;
 use Apie\Fixtures\Identifiers\OrderIdentifier;
@@ -15,6 +18,7 @@ use Apie\Fixtures\ValueObjects\Password;
 use Apie\StorageMetadata\DomainToStorageConverter;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Apie\Tests\StorageMetadata\Fixtures\AddressStorage;
+use Apie\Tests\StorageMetadata\Fixtures\AnimalStorage;
 use Apie\Tests\StorageMetadata\Fixtures\OrderLineStorage;
 use Apie\Tests\StorageMetadata\Fixtures\OrderStorage;
 use Apie\Tests\StorageMetadata\Fixtures\UserWithAddressStorage;
@@ -60,6 +64,23 @@ class DomainToStorageConverterTest extends TestCase
     {
         yield 'object with composite' => [$this->createUserForDomainObject(), $this->createUserForStorage()];
         yield 'object with one to many' => [$this->createOrderForDomainObject(), $this->createOrderForStorage()];
+        yield 'polymorphic object' => [$this->createElephantForDomainObject(), $this->createElephantForStorage()];
+    }
+
+    private function createElephantForStorage(): AnimalStorage
+    {
+        return new AnimalStorage(
+            discriminatorMapping: ['animalType' => 'elephant'],
+            apieId: '550e8400-e29b-41d4-a716-446655440000',
+            apieStarving: true
+        );
+    }
+
+    private function createElephantForDomainObject(): Animal
+    {
+        $res = new Elephant(AnimalIdentifier::fromNative('550e8400-e29b-41d4-a716-446655440000'));
+        $res->starving = true;
+        return $res;
     }
 
     private function createOrderForStorage(): OrderStorage

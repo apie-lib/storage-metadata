@@ -3,6 +3,7 @@ namespace Apie\StorageMetadata;
 
 use Apie\StorageMetadata\ClassInstantiators\ChainedClassInstantiator;
 use Apie\StorageMetadata\ClassInstantiators\FromReflection;
+use Apie\StorageMetadata\ClassInstantiators\FromStorage;
 use Apie\StorageMetadata\Converters\ArrayToItemHashmap;
 use Apie\StorageMetadata\Converters\ArrayToItemList;
 use Apie\StorageMetadata\Converters\StringToEnum;
@@ -92,6 +93,7 @@ class DomainToStorageConverter
     {
         return new self(
             new ChainedClassInstantiator(
+                new FromStorage(),
                 new FromReflection(),
             ),
             new OneToOneAttributeConverter(),
