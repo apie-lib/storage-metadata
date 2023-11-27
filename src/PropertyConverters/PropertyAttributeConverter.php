@@ -25,4 +25,20 @@ class PropertyAttributeConverter implements PropertyConverterInterface
             }
         }
     }
+
+    public function applyToStorage(
+        DomainToStorageContext $context
+    ): void {
+        $storageProperty = $context->storageProperty;
+
+        foreach ($storageProperty->getAttributes(PropertyAttribute::class) as $propertyAttribute) {
+            $domainProperty = $propertyAttribute->newInstance()->getReflectionProperty($context->domainClass, $context->domainObject);
+            if ($domainProperty) {
+                $storagePropertyType = $storageProperty->getType();
+                $domainPropertyValue = $domainProperty->getValue($context->domainObject);
+                $storagePropertyValue = $context->dynamicCast($domainPropertyValue, $storagePropertyType);
+                $context->setStoragePropertyValue($storagePropertyValue);
+            }
+        }
+    }
 }

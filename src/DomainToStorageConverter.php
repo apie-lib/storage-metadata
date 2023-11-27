@@ -6,14 +6,19 @@ use Apie\StorageMetadata\ClassInstantiators\FromReflection;
 use Apie\StorageMetadata\ClassInstantiators\FromStorage;
 use Apie\StorageMetadata\Converters\ArrayToItemHashmap;
 use Apie\StorageMetadata\Converters\ArrayToItemList;
+use Apie\StorageMetadata\Converters\EnumToString;
 use Apie\StorageMetadata\Converters\StringToEnum;
 use Apie\StorageMetadata\Converters\StringToValueObject;
+use Apie\StorageMetadata\Converters\ValueObjectToString;
 use Apie\StorageMetadata\Interfaces\ClassInstantiatorInterface;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;
+use Apie\StorageMetadata\PropertyConverters\DefaultValueAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\DiscriminatorMappingAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\OneToManyAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\OneToOneAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\OrderAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\PropertyAttributeConverter;
 use Apie\TypeConverter\Converters\ObjectToObjectConverter;
 use Apie\TypeConverter\DefaultConvertersFactory;
@@ -46,6 +51,8 @@ class DomainToStorageConverter
         $typeConverter = new TypeConverter(
             new ObjectToObjectConverter(),
             ...DefaultConvertersFactory::create(
+                new ValueObjectToString(),
+                new EnumToString(),
                 new StringToValueObject(),
                 new StringToEnum(),
                 new ArrayToItemHashmap(),
@@ -89,6 +96,59 @@ class DomainToStorageConverter
         );
     }
 
+    /**
+     * @template T of StorageDtoInterface
+     * @param ReflectionClass<T> $targetClass
+     * @return T
+     */
+    public function createStorageObject(object $input, ReflectionClass $targetClass): StorageDtoInterface
+    {
+        return $this->injectExistingStorageObject(
+            $input,
+            $this->classInstantiator->create($targetClass),
+        );
+    }
+
+    public function injectExistingStorageObject(object $domainObject, StorageDtoInterface $storageObject)
+    {
+        $domainClass = $storageObject::getClassReference();
+        $filters = null;
+        $ptr = new ReflectionClass($storageObject);
+        $typeConverter = new TypeConverter(
+            new ObjectToObjectConverter(),
+            ...DefaultConvertersFactory::create(
+                new ValueObjectToString(),
+                new EnumToString(),
+                new StringToValueObject(),
+                new StringToEnum(),
+                new ArrayToItemHashmap(),
+                new ArrayToItemList(),
+            )
+        );
+        $context = new DomainToStorageContext(
+            $this,
+            $typeConverter,
+            $storageObject,
+            $domainObject,
+            $domainClass
+        );
+        while ($ptr) {
+            foreach ($ptr->getProperties($filters) as $storageProperty) {
+                if ($storageProperty->isStatic()) {
+                    continue;
+                }
+                $propertyContext = $context->withStorageProperty($storageProperty);
+                foreach ($this->propertyConverters as $propertyConverter) {
+                    $propertyConverter->applyToStorage($propertyContext);
+                }
+            }
+            $ptr = $ptr->getParentClass();
+            // parent classes only add private properties
+            $filters = ReflectionProperty::IS_PRIVATE;
+        }
+        return $storageObject;
+    }
+
     public static function create(): self
     {
         return new self(
@@ -96,9 +156,12 @@ class DomainToStorageConverter
                 new FromStorage(),
                 new FromReflection(),
             ),
+            new DiscriminatorMappingAttributeConverter(),
             new OneToOneAttributeConverter(),
             new OneToManyAttributeConverter(),
             new PropertyAttributeConverter(),
+            new OrderAttributeConverter(),
+            new DefaultValueAttributeConverter(),
         );
     }
 }

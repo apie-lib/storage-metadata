@@ -25,6 +25,7 @@ use Apie\Tests\StorageMetadata\Fixtures\UserWithAddressStorage;
 use Apie\TextValueObjects\DatabaseText;
 use Generator;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 class DomainToStorageConverterTest extends TestCase
 {
@@ -56,6 +57,21 @@ class DomainToStorageConverterTest extends TestCase
         $actual = $testItem->createDomainObject($storageObject);
         $this->assertEquals(
             $domainObject,
+            $actual
+        );
+    }
+
+    /**
+     * @test
+     * @dataProvider provideDomainObjects
+     */
+    public function it_can_convert_a_domain_object_to_a_storage_object(EntityInterface $domainObject, StorageDtoInterface $storageObject)
+    {
+        $testItem = DomainToStorageConverter::create();
+        //$this->assertTrue($storageObject::getClassReference()->isInstance($domainObject));
+        $actual = $testItem->createStorageObject($domainObject, new ReflectionClass($storageObject));
+        $this->assertEquals(
+            $storageObject,
             $actual
         );
     }

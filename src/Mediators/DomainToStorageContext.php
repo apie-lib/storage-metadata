@@ -19,6 +19,8 @@ final class DomainToStorageContext
 
     public readonly ReflectionProperty $storageProperty;
 
+    public readonly int|string $arrayKey;
+
     /**
      * @template T of object
      * @param T $domainObject
@@ -32,6 +34,7 @@ final class DomainToStorageContext
         ?ReflectionClass $domainClass = null
     ) {
         $this->domainClass = $domainClass ?? new ReflectionClass($domainObject);
+        $this->arrayKey = 0;
     }
 
     public function withStorageProperty(ReflectionProperty $storageProperty): self
@@ -39,6 +42,16 @@ final class DomainToStorageContext
         // we do this to throw an exception in case an incorrect property is entered here.
         $storageProperty->isInitialized($this->storageObject);
         return $this->clone(['storageProperty' => $storageProperty]);
+    }
+
+    public function withArrayKey(string|int $key): self
+    {
+        return $this->clone(['arrayKey' => $key]);
+    }
+
+    public function setStoragePropertyValue(mixed $value): void
+    {
+        $this->storageProperty->setValue($this->storageObject, $value);
     }
 
     public function getStoragePropertyValue(): mixed
@@ -59,7 +72,7 @@ final class DomainToStorageContext
         }
         if (is_object($input)) {
             $class = ConverterUtils::toReflectionClass($wantedType);
-            if ($class->isInstance($input)) {
+            if ($class && $class->isInstance($input)) {
                 return $input;
             }
         } elseif ($wantedType instanceof ReflectionNamedType && $wantedType->getName() === get_debug_type($input)) {

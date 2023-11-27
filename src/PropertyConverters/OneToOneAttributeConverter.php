@@ -2,6 +2,7 @@
 namespace Apie\StorageMetadata\PropertyConverters;
 
 use Apie\Core\Attributes\Optional;
+use Apie\Core\Utils\ConverterUtils;
 use Apie\StorageMetadata\Attributes\OneToOneAttribute;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
@@ -30,6 +31,33 @@ class OneToOneAttributeConverter implements PropertyConverterInterface
                         continue;
                     }
                     $domainProperty->setValue($context->domainObject, $domainPropertyValue);
+                }
+            }
+        }
+    }
+
+    public function applyToStorage(
+        DomainToStorageContext $context
+    ): void {
+        foreach ($context->storageProperty->getAttributes(OneToOneAttribute::class) as $oneToOneAttribute) {
+            $domainProperty = $oneToOneAttribute->newInstance()->getReflectionProperty($context->domainClass, $context->domainObject);
+            if ($domainProperty) {
+                $storageProperty = $context->storageProperty;
+                if ($storageProperty->isInitialized($context->storageObject)) {
+                    $context->domainToStorageConverter->injectExistingStorageObject(
+                        $context->domainObject,
+                        $storageProperty->getValue($context->storageObject)
+                    );
+                } else {
+                    $domainPropertyValue = $domainProperty->isInitialized($context->domainObject) ? $domainProperty->getValue($context->domainObject) : null;
+                
+                    $storageClass = ConverterUtils::toReflectionClass($storageProperty->getType());
+                    if ($storageClass) {
+                        $storagePropertyValue = $context->domainToStorageConverter->createStorageObject($domainPropertyValue, $storageClass);
+                    } else {
+                        $storagePropertyValue = $context->dynamicCast($domainPropertyValue, $storageProperty->getType());
+                    }
+                    $storageProperty->setValue($context->storageObject, $storagePropertyValue);
                 }
             }
         }
