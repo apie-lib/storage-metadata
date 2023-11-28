@@ -19,6 +19,7 @@ use Apie\StorageMetadata\PropertyConverters\DiscriminatorMappingAttributeConvert
 use Apie\StorageMetadata\PropertyConverters\OneToManyAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\OneToOneAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\OrderAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\ParentAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\PropertyAttributeConverter;
 use Apie\TypeConverter\Converters\ObjectToObjectConverter;
 use Apie\TypeConverter\DefaultConvertersFactory;
@@ -108,8 +109,7 @@ class DomainToStorageConverter
         object $input,
         ReflectionClass $targetClass,
         ?DomainToStorageContext $context = null
-    ): StorageDtoInterface
-    {
+    ): StorageDtoInterface {
         return $this->injectExistingStorageObject(
             $input,
             $this->classInstantiator->create($targetClass),
@@ -121,7 +121,7 @@ class DomainToStorageConverter
         object $domainObject,
         StorageDtoInterface $storageObject,
         ?DomainToStorageContext $context = null
-    ) {
+    ): StorageDtoInterface {
         $domainClass = $storageObject::getClassReference();
         $filters = null;
         $ptr = new ReflectionClass($storageObject);
@@ -173,6 +173,7 @@ class DomainToStorageConverter
             new OneToManyAttributeConverter(),
             new PropertyAttributeConverter(),
             new OrderAttributeConverter(),
+            new ParentAttributeConverter(),
             new DefaultValueAttributeConverter(),
         );
     }

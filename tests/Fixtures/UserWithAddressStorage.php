@@ -23,5 +23,6 @@ class UserWithAddressStorage implements StorageDtoInterface
         #[SensitiveParameter]
         public ?string $apiePassword = null,
     ) {
+        $this->apieAddress->parent = $this;
     }
 }

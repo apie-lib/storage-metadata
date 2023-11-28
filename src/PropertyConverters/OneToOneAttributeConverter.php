@@ -7,6 +7,7 @@ use Apie\StorageMetadata\Attributes\OneToOneAttribute;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;
+use ReflectionClass;
 
 class OneToOneAttributeConverter implements PropertyConverterInterface
 {
@@ -51,7 +52,7 @@ class OneToOneAttributeConverter implements PropertyConverterInterface
                     );
                 } else {
                     $domainPropertyValue = $domainProperty->isInitialized($context->domainObject) ? $domainProperty->getValue($context->domainObject) : null;
-                
+                    /** @var ReflectionClass<StorageDtoInterface>|null $storageClass */
                     $storageClass = ConverterUtils::toReflectionClass($storageProperty->getType());
                     if ($storageClass) {
                         $storagePropertyValue = $context->domainToStorageConverter->createStorageObject($domainPropertyValue, $storageClass, $context);

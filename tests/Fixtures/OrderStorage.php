@@ -22,5 +22,8 @@ class OrderStorage implements StorageDtoInterface
         #[OneToManyAttribute(propertyName: 'orderLines', storageClass: OrderLineStorage::class)]
         public array $apieOrderLines,
     ) {
+        foreach ($apieOrderLines as $apieOrderLine) {
+            $apieOrderLine->parent = $this;
+        }
     }
 }

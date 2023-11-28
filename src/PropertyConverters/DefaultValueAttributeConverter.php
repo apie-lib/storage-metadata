@@ -17,7 +17,7 @@ class DefaultValueAttributeConverter implements PropertyConverterInterface
         if (!$context->storageProperty->isInitialized($context->storageObject)) {
             if ($context->storageProperty->hasDefaultValue()) {
                 $context->storageProperty->setValue($context->storageObject, $context->storageProperty->getDefaultValue());
-            } else if (!$context->storageProperty->getType() || $context->storageProperty->getType()->allowsNull()) {
+            } elseif (!$context->storageProperty->getType() || $context->storageProperty->getType()->allowsNull()) {
                 $context->storageProperty->setValue($context->storageObject, null);
             }
         }
