@@ -14,8 +14,12 @@ class DefaultValueAttributeConverter implements PropertyConverterInterface
     public function applyToStorage(
         DomainToStorageContext $context
     ): void {
-        if (!$context->storageProperty->isInitialized($context->storageObject) && $context->storageProperty->hasDefaultValue()) {
-            $context->storageProperty->setValue($context->storageObject, $context->storageProperty->getDefaultValue());
+        if (!$context->storageProperty->isInitialized($context->storageObject)) {
+            if ($context->storageProperty->hasDefaultValue()) {
+                $context->storageProperty->setValue($context->storageObject, $context->storageProperty->getDefaultValue());
+            } else if (!$context->storageProperty->getType() || $context->storageProperty->getType()->allowsNull()) {
+                $context->storageProperty->setValue($context->storageObject, null);
+            }
         }
     }
 }
