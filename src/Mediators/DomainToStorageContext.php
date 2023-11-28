@@ -34,7 +34,22 @@ final class DomainToStorageContext
         ?ReflectionClass $domainClass = null
     ) {
         $this->domainClass = $domainClass ?? new ReflectionClass($domainObject);
-        $this->arrayKey = 0;
+    }
+
+    public static function createFromContext(
+        DomainToStorageConverter $domainToStorageConverter,
+        TypeConverter $typeConverter,
+        StorageDtoInterface $storageObject,
+        object $domainObject,
+        ?ReflectionClass $domainClass = null,
+        ?DomainToStorageContext $context = null,
+    ): self {
+        $res = new self($domainToStorageConverter, $typeConverter, $storageObject, $domainObject, $domainClass);
+        if (isset($context->arrayKey)) {
+            $res = $res->withArrayKey($context->arrayKey);
+        }
+
+        return $res;
     }
 
     public function withStorageProperty(ReflectionProperty $storageProperty): self

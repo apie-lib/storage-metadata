@@ -45,7 +45,8 @@ class DomainToStorageConverter
      */
     public function injectExistingDomainObject(
         object $domainObject,
-        StorageDtoInterface $storageObject
+        StorageDtoInterface $storageObject,
+        ?DomainToStorageContext $context = null
     ): object {
         $domainClass = $storageObject::getClassReference();
         $typeConverter = new TypeConverter(
@@ -59,12 +60,13 @@ class DomainToStorageConverter
                 new ArrayToItemList(),
             )
         );
-        $context = new DomainToStorageContext(
+        $context = DomainToStorageContext::createFromContext(
             $this,
             $typeConverter,
             $storageObject,
             $domainObject,
-            $domainClass
+            $domainClass,
+            $context
         );
         $ptr = new ReflectionClass($storageObject);
         $filters = null;
@@ -86,13 +88,14 @@ class DomainToStorageConverter
         return $domainObject;
     }
 
-    public function createDomainObject(StorageDtoInterface $storageObject): object
+    public function createDomainObject(StorageDtoInterface $storageObject, ?DomainToStorageContext $context = null): object
     {
         $domainClass = $storageObject::getClassReference();
         
         return $this->injectExistingDomainObject(
             $this->classInstantiator->create($domainClass, $storageObject),
-            $storageObject
+            $storageObject,
+            $context
         );
     }
 
@@ -101,16 +104,24 @@ class DomainToStorageConverter
      * @param ReflectionClass<T> $targetClass
      * @return T
      */
-    public function createStorageObject(object $input, ReflectionClass $targetClass): StorageDtoInterface
+    public function createStorageObject(
+        object $input,
+        ReflectionClass $targetClass,
+        ?DomainToStorageContext $context = null
+    ): StorageDtoInterface
     {
         return $this->injectExistingStorageObject(
             $input,
             $this->classInstantiator->create($targetClass),
+            $context
         );
     }
 
-    public function injectExistingStorageObject(object $domainObject, StorageDtoInterface $storageObject)
-    {
+    public function injectExistingStorageObject(
+        object $domainObject,
+        StorageDtoInterface $storageObject,
+        ?DomainToStorageContext $context = null
+    ) {
         $domainClass = $storageObject::getClassReference();
         $filters = null;
         $ptr = new ReflectionClass($storageObject);
@@ -125,12 +136,13 @@ class DomainToStorageConverter
                 new ArrayToItemList(),
             )
         );
-        $context = new DomainToStorageContext(
+        $context = DomainToStorageContext::createFromContext(
             $this,
             $typeConverter,
             $storageObject,
             $domainObject,
-            $domainClass
+            $domainClass,
+            $context
         );
         while ($ptr) {
             foreach ($ptr->getProperties($filters) as $storageProperty) {

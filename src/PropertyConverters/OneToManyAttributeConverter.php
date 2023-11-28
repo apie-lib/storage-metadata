@@ -14,6 +14,7 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
     public function applyToDomain(
         DomainToStorageContext $context
     ): void {
+        
         foreach ($context->storageProperty->getAttributes(OneToManyAttribute::class) as $oneToManyAttribute) {
             $domainProperty = $oneToManyAttribute->newInstance()->getReflectionProperty($context->domainClass, $context->domainObject);
             if ($domainProperty) {
@@ -26,11 +27,12 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
                     if ($arrayValue instanceof StorageDtoInterface && isset($domainProperties[$arrayKey])) {
                         $context->domainToStorageConverter->injectExistingDomainObject(
                             $domainProperties[$arrayKey],
-                            $arrayValue
+                            $arrayValue,
+                            $context
                         );
                     } else {
                         $domainProperties[$arrayKey] = $arrayValue instanceof StorageDtoInterface
-                            ? $context->domainToStorageConverter->createDomainObject($arrayValue)
+                            ? $context->domainToStorageConverter->createDomainObject($arrayValue, $context)
                             : $context->dynamicCast($arrayValue, ReflectionTypeFactory::createReflectionType($oneToManyAttribute->newInstance()->declaredClass));
                     }
                 }
@@ -55,11 +57,13 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
                         $arrayContext->domainToStorageConverter->injectExistingStorageObject(
                             $arrayValue,
                             $storageProperties[$arrayKey],
+                            $arrayContext
                         );
                     } else {
                         $storageProperties[$arrayKey] = $arrayContext->domainToStorageConverter->createStorageObject(
                             $domainPropertyValue[$arrayKey],
-                            new ReflectionClass($oneToManyAttribute->newInstance()->storageClass)
+                            new ReflectionClass($oneToManyAttribute->newInstance()->storageClass),
+                            $arrayContext
                         );
                     }
                 }
