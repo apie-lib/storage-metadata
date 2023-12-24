@@ -3,15 +3,16 @@ namespace Apie\StorageMetadata\Converters;
 
 use Apie\Core\Utils\ConverterUtils;
 use Apie\Core\ValueObjects\Interfaces\ValueObjectInterface;
+use Apie\Core\ValueObjects\Utils;
 use Apie\TypeConverter\ConverterInterface;
 use ReflectionType;
 
 /**
- * @implements ConverterInterface<ValueObjectInterface, string>
+ * @implements ConverterInterface<ValueObjectInterface, int|null>
  */
-class ValueObjectToString implements ConverterInterface
+class ValueObjectToInt implements ConverterInterface
 {
-    public function convert(ValueObjectInterface $input, ?ReflectionType $wantedType): ?string
+    public function convert(ValueObjectInterface $input, ?ReflectionType $wantedType): ?int
     {
         $class = ConverterUtils::toReflectionClass($wantedType);
         assert(null !== $class);
@@ -19,6 +20,6 @@ class ValueObjectToString implements ConverterInterface
         if (null === $native && $wantedType?->allowsNull()) {
             return null;
         }
-        return $input->toNative();
+        return Utils::toInt($native);
     }
 }

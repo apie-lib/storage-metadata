@@ -15,7 +15,7 @@ class PropertyAttributeConverter implements PropertyConverterInterface
 
         foreach ($storageProperty->getAttributes(PropertyAttribute::class) as $propertyAttribute) {
             $domainProperty = $propertyAttribute->newInstance()->getReflectionProperty($context->domainClass, $context->domainObject);
-            if ($domainProperty) {
+            if ($domainProperty && (!$domainProperty->isInitialized($context->domainObject) || !$domainProperty->isReadOnly())) {
                 $domainPropertyType = $domainProperty->getType();
                 $domainPropertyValue = $context->dynamicCast($context->getStoragePropertyValue(), $domainPropertyType);
                 if (!$domainPropertyType->allowsNull() && $domainPropertyValue === null && $domainProperty->getAttributes(Optional::class)) {

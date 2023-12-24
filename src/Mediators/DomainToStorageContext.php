@@ -3,12 +3,14 @@ namespace Apie\StorageMetadata\Mediators;
 
 use Apie\Core\Utils\ConverterUtils;
 use Apie\StorageMetadata\DomainToStorageConverter;
+use Apie\StorageMetadata\Exceptions\CouldNotCastPropertyException;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Apie\TypeConverter\TypeConverter;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionType;
+use Throwable;
 
 final class DomainToStorageContext
 {
@@ -90,7 +92,7 @@ final class DomainToStorageContext
 
     public function dynamicCast(mixed $input, ?ReflectionType $wantedType): mixed
     {
-        if (!$wantedType) {
+        if (!$wantedType || ('mixed' === (string) $wantedType)) {
             return $input;
         }
         if ($input === null && $wantedType->allowsNull()) {
@@ -104,7 +106,16 @@ final class DomainToStorageContext
         } elseif ($wantedType instanceof ReflectionNamedType && $wantedType->getName() === get_debug_type($input)) {
             return $input;
         }
-        return $this->typeConverter->convertTo($input, $wantedType);
+        try {
+            return $this->typeConverter->convertTo($input, $wantedType);
+        } catch (Throwable $error) {
+            throw new CouldNotCastPropertyException(
+                $this->storageProperty ?? null,
+                $this->domainObject,
+                $wantedType,
+                $error
+            );
+        }
     }
 
     /**

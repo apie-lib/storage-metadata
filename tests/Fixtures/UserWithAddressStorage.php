@@ -2,6 +2,7 @@
 namespace Apie\Tests\StorageMetadata\Fixtures;
 
 use Apie\Fixtures\Entities\UserWithAddress;
+use Apie\StorageMetadata\Attributes\GetMethodAttribute;
 use Apie\StorageMetadata\Attributes\OneToOneAttribute;
 use Apie\StorageMetadata\Attributes\PropertyAttribute;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
@@ -15,6 +16,8 @@ class UserWithAddressStorage implements StorageDtoInterface
         return new ReflectionClass(UserWithAddress::class);
     }
     public function __construct(
+        #[GetMethodAttribute('getId')]
+        private string $id,
         #[PropertyAttribute('id')]
         public string $apieId,
         #[OneToOneAttribute('address')]

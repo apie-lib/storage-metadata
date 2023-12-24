@@ -28,6 +28,9 @@ class OneToManyAttribute
      */
     public function getReflectionProperty(ReflectionClass $targetClass, object $instance): ?ReflectionProperty
     {
+        if ($this->propertyName === null) {
+            return null;
+        }
         $property = ($this->declaredClass ? new ReflectionClass($this->declaredClass) : $targetClass)->getProperty($this->propertyName);
         try {
             $property->isInitialized($instance);

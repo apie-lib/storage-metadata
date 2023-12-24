@@ -87,6 +87,7 @@ class DomainToStorageConverterTest extends TestCase
     {
         return new AnimalStorage(
             discriminatorMapping: ['animalType' => 'elephant'],
+            id: '550e8400-e29b-41d4-a716-446655440000',
             apieId: '550e8400-e29b-41d4-a716-446655440000',
             apieStarving: true
         );
@@ -101,7 +102,8 @@ class DomainToStorageConverterTest extends TestCase
 
     private function createOrderForStorage(): OrderStorage
     {
-        return new OrderStorage(
+        $res = new OrderStorage(
+            '550e8400-e29b-41d4-a716-446655440000',
             '550e8400-e29b-41d4-a716-446655440000',
             OrderStatus::DRAFT->value,
             [
@@ -109,6 +111,11 @@ class DomainToStorageConverterTest extends TestCase
                 new OrderLineStorage('550e8400-e29b-41d4-a716-446655430001', 1),
             ]
         );
+        $res->searchOrderLines = [
+            '550e8400-e29b-41d4-a716-446655440001',
+            '550e8400-e29b-41d4-a716-446655430001'
+        ];
+        return $res;
     }
 
     private function createOrderForDomainObject(): Order
@@ -125,6 +132,7 @@ class DomainToStorageConverterTest extends TestCase
     private function createUserForStorage(): UserWithAddressStorage
     {
         return new UserWithAddressStorage(
+            id: '550e8400-e29b-41d4-a716-446655440000',
             apieId: '550e8400-e29b-41d4-a716-446655440000',
             apieAddress: new AddressStorage(
                 'Evergreen Terrace',

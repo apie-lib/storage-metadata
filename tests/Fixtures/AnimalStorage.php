@@ -7,6 +7,7 @@ use Apie\Fixtures\Entities\Polymorphic\Cow;
 use Apie\Fixtures\Entities\Polymorphic\Elephant;
 use Apie\Fixtures\Entities\Polymorphic\Fish;
 use Apie\StorageMetadata\Attributes\DiscriminatorMappingAttribute;
+use Apie\StorageMetadata\Attributes\GetMethodAttribute;
 use Apie\StorageMetadata\Attributes\PropertyAttribute;
 use Apie\StorageMetadata\Interfaces\StorageClassInstantiatorInterface;
 use ReflectionClass;
@@ -16,6 +17,8 @@ class AnimalStorage implements StorageClassInstantiatorInterface
     public function __construct(
         #[DiscriminatorMappingAttribute]
         private array $discriminatorMapping,
+        #[GetMethodAttribute('getId')]
+        private string $id,
         #[PropertyAttribute('id')]
         private string $apieId,
         #[PropertyAttribute('hasMilk', Cow::class)]

@@ -54,7 +54,7 @@ class OneToOneAttributeConverter implements PropertyConverterInterface
                     $domainPropertyValue = $domainProperty->isInitialized($context->domainObject) ? $domainProperty->getValue($context->domainObject) : null;
                     /** @var ReflectionClass<StorageDtoInterface>|null $storageClass */
                     $storageClass = ConverterUtils::toReflectionClass($storageProperty->getType());
-                    if ($storageClass) {
+                    if ($storageClass && in_array(StorageDtoInterface::class, $storageClass->getInterfaceNames())) {
                         $storagePropertyValue = $context->domainToStorageConverter->createStorageObject($domainPropertyValue, $storageClass, $context);
                     } else {
                         $storagePropertyValue = $context->dynamicCast($domainPropertyValue, $storageProperty->getType());

@@ -1,14 +1,24 @@
 <?php
 namespace Apie\StorageMetadata;
 
+use Apie\Core\Indexing\Indexer;
 use Apie\StorageMetadata\ClassInstantiators\ChainedClassInstantiator;
 use Apie\StorageMetadata\ClassInstantiators\FromReflection;
 use Apie\StorageMetadata\ClassInstantiators\FromStorage;
 use Apie\StorageMetadata\Converters\ArrayToItemHashmap;
 use Apie\StorageMetadata\Converters\ArrayToItemList;
+use Apie\StorageMetadata\Converters\AutoIncrementTableToInt;
+use Apie\StorageMetadata\Converters\AutoIncrementTableToValueObject;
 use Apie\StorageMetadata\Converters\EnumToString;
+use Apie\StorageMetadata\Converters\IntToAutoIncrementTable;
+use Apie\StorageMetadata\Converters\IntToValueObject;
+use Apie\StorageMetadata\Converters\MixedStorageToObject;
+use Apie\StorageMetadata\Converters\ObjectToMixedStorage;
 use Apie\StorageMetadata\Converters\StringToEnum;
 use Apie\StorageMetadata\Converters\StringToValueObject;
+use Apie\StorageMetadata\Converters\ValueObjectToAutoIncrementTable;
+use Apie\StorageMetadata\Converters\ValueObjectToFloat;
+use Apie\StorageMetadata\Converters\ValueObjectToInt;
 use Apie\StorageMetadata\Converters\ValueObjectToString;
 use Apie\StorageMetadata\Interfaces\ClassInstantiatorInterface;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
@@ -16,6 +26,8 @@ use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;
 use Apie\StorageMetadata\PropertyConverters\DefaultValueAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\DiscriminatorMappingAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\GetSearchIndexAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\MethodAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\OneToManyAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\OneToOneAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\OrderAttributeConverter;
@@ -39,6 +51,30 @@ class DomainToStorageConverter
         $this->propertyConverters = $propertyConverters;
     }
 
+    private function createTypeConverter(): TypeConverter
+    {
+        return new TypeConverter(
+            new ObjectToObjectConverter(),
+            ...DefaultConvertersFactory::create(
+                new AutoIncrementTableToInt(),
+                new AutoIncrementTableToValueObject(),
+                new IntToAutoIncrementTable(),
+                new ValueObjectToAutoIncrementTable(),
+                new ValueObjectToInt(),
+                new IntToValueObject(),
+                new ValueObjectToFloat(),
+                new MixedStorageToObject(),
+                new ObjectToMixedStorage(),
+                new ValueObjectToString(),
+                new EnumToString(),
+                new StringToValueObject(),
+                new StringToEnum(),
+                new ArrayToItemHashmap(),
+                new ArrayToItemList(),
+            )
+        );
+    }
+
     /**
      * @template T of object
      * @param T $domainObject
@@ -50,17 +86,7 @@ class DomainToStorageConverter
         ?DomainToStorageContext $context = null
     ): object {
         $domainClass = $storageObject::getClassReference();
-        $typeConverter = new TypeConverter(
-            new ObjectToObjectConverter(),
-            ...DefaultConvertersFactory::create(
-                new ValueObjectToString(),
-                new EnumToString(),
-                new StringToValueObject(),
-                new StringToEnum(),
-                new ArrayToItemHashmap(),
-                new ArrayToItemList(),
-            )
-        );
+        $typeConverter = $this->createTypeConverter();
         $context = DomainToStorageContext::createFromContext(
             $this,
             $typeConverter,
@@ -125,17 +151,7 @@ class DomainToStorageConverter
         $domainClass = $storageObject::getClassReference();
         $filters = null;
         $ptr = new ReflectionClass($storageObject);
-        $typeConverter = new TypeConverter(
-            new ObjectToObjectConverter(),
-            ...DefaultConvertersFactory::create(
-                new ValueObjectToString(),
-                new EnumToString(),
-                new StringToValueObject(),
-                new StringToEnum(),
-                new ArrayToItemHashmap(),
-                new ArrayToItemList(),
-            )
-        );
+        $typeConverter = $this->createTypeConverter();
         $context = DomainToStorageContext::createFromContext(
             $this,
             $typeConverter,
@@ -161,7 +177,7 @@ class DomainToStorageConverter
         return $storageObject;
     }
 
-    public static function create(): self
+    public static function create(?Indexer $indexer = null): self
     {
         return new self(
             new ChainedClassInstantiator(
@@ -172,6 +188,8 @@ class DomainToStorageConverter
             new OneToOneAttributeConverter(),
             new OneToManyAttributeConverter(),
             new PropertyAttributeConverter(),
+            new GetSearchIndexAttributeConverter($indexer ?? Indexer::create()),
+            new MethodAttributeConverter(),
             new OrderAttributeConverter(),
             new ParentAttributeConverter(),
             new DefaultValueAttributeConverter(),
