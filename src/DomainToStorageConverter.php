@@ -2,6 +2,8 @@
 namespace Apie\StorageMetadata;
 
 use Apie\Core\Indexing\Indexer;
+use Apie\Core\TypeConverters\ArrayToDoctrineCollection;
+use Apie\Core\TypeConverters\DoctrineCollectionToArray;
 use Apie\StorageMetadata\ClassInstantiators\ChainedClassInstantiator;
 use Apie\StorageMetadata\ClassInstantiators\FromReflection;
 use Apie\StorageMetadata\ClassInstantiators\FromStorage;
@@ -56,6 +58,8 @@ class DomainToStorageConverter
         return new TypeConverter(
             new ObjectToObjectConverter(),
             ...DefaultConvertersFactory::create(
+                new ArrayToDoctrineCollection(),
+                new DoctrineCollectionToArray(),
                 new AutoIncrementTableToInt(),
                 new AutoIncrementTableToValueObject(),
                 new IntToAutoIncrementTable(),
