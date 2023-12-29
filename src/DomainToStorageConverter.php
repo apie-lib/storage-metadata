@@ -29,6 +29,7 @@ use Apie\StorageMetadata\Mediators\DomainToStorageContext;
 use Apie\StorageMetadata\PropertyConverters\DefaultValueAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\DiscriminatorMappingAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\GetSearchIndexAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\ManyToOneAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\MethodAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\OneToManyAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\OneToOneAttributeConverter;
@@ -189,6 +190,7 @@ class DomainToStorageConverter
                 new FromReflection(),
             ),
             new DiscriminatorMappingAttributeConverter(),
+            new ManyToOneAttributeConverter(),
             new OneToOneAttributeConverter(),
             new OneToManyAttributeConverter(),
             new PropertyAttributeConverter(),
