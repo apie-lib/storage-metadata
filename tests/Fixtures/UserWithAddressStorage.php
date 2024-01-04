@@ -19,7 +19,7 @@ class UserWithAddressStorage implements StorageDtoInterface
         #[GetMethodAttribute('getId')]
         private string $id,
         #[PropertyAttribute('id')]
-        public string $apieId,
+        public ?string $apieId,
         #[OneToOneAttribute('address')]
         public AddressStorage $apieAddress,
         #[PropertyAttribute('password')]

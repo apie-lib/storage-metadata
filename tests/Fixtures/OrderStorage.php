@@ -23,9 +23,9 @@ class OrderStorage implements StorageDtoInterface
         #[GetMethodAttribute('getId')]
         private string $id,
         #[PropertyAttribute('id')]
-        public string $apieId,
+        public ?string $apieId,
         #[PropertyAttribute('orderStatus')]
-        public string $apieOrderStatus,
+        public ?string $apieOrderStatus,
         #[OneToManyAttribute(propertyName: 'orderLines', storageClass: OrderLineStorage::class)]
         public array $apieOrderLines,
     ) {

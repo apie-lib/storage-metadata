@@ -20,7 +20,7 @@ class AnimalStorage implements StorageClassInstantiatorInterface
         #[GetMethodAttribute('getId')]
         private string $id,
         #[PropertyAttribute('id')]
-        private string $apieId,
+        private ?string $apieId,
         #[PropertyAttribute('hasMilk', Cow::class)]
         private ?bool $apieHasMilk = null,
         #[PropertyAttribute('starving', Elephant::class)]
