@@ -21,7 +21,7 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
                 $storagePropertyValue = Utils::toArray($context->getStoragePropertyValue());
                 $domainPropertyType = $domainProperty->getType();
                 $domainProperties = $domainProperty->isInitialized($context->domainObject)
-                    ? Utils::toArray($domainProperty->getValue())
+                    ? Utils::toArray($domainProperty->getValue($context->domainObject))
                     : [];
                 foreach ($storagePropertyValue as $arrayKey => $arrayValue) {
                     if ($arrayValue instanceof StorageDtoInterface && isset($domainProperties[$arrayKey])) {
@@ -49,7 +49,7 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
             if ($domainProperty) {
                 $domainPropertyValue = Utils::toArray($domainProperty->getValue($context->domainObject));
                 $storageProperties = $context->storageProperty->isInitialized($context->storageObject)
-                    ? Utils::toArray($context->storageProperty->getValue())
+                    ? Utils::toArray($context->storageProperty->getValue($context->storageObject))
                     : [];
                 foreach ($domainPropertyValue as $arrayKey => $arrayValue) {
                     $arrayContext = $context->withArrayKey($arrayKey);
