@@ -41,6 +41,14 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
         }
     }
 
+    private function toReflClass(string $className): ReflectionClass
+    {
+        if (str_starts_with($className, 'apie_')) {
+            return new ReflectionClass('Generated\\ApieEntities\\' . $className);
+        }
+        return new ReflectionClass($className);
+    }
+
     public function applyToStorage(
         DomainToStorageContext $context
     ): void {
@@ -62,7 +70,7 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
                     } else {
                         $storageProperties[$arrayKey] = $arrayContext->domainToStorageConverter->createStorageObject(
                             $domainPropertyValue[$arrayKey],
-                            new ReflectionClass($oneToManyAttribute->newInstance()->storageClass),
+                            $this->toReflClass($oneToManyAttribute->newInstance()->storageClass),
                             $arrayContext
                         );
                     }
