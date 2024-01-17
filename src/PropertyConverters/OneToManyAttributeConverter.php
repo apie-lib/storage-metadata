@@ -41,6 +41,11 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
         }
     }
 
+    /**
+     * @template T of object
+     * @param class-string<T> $className
+     * @return ReflectionClass<T>
+     */
     private function toReflClass(string $className): ReflectionClass
     {
         if (str_starts_with($className, 'apie_')) {
