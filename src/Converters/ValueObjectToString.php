@@ -13,8 +13,6 @@ class ValueObjectToString implements ConverterInterface
 {
     public function convert(ValueObjectInterface $input, ?ReflectionType $wantedType): ?string
     {
-        $class = ConverterUtils::toReflectionClass($wantedType);
-        assert(null !== $class);
         $native = $input->toNative();
         if (null === $native && $wantedType?->allowsNull()) {
             return null;

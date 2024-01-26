@@ -15,7 +15,6 @@ class ValueObjectToFloat implements ConverterInterface
     public function convert(ValueObjectInterface $input, ?ReflectionType $wantedType): float
     {
         $class = ConverterUtils::toReflectionClass($wantedType);
-        assert(null !== $class);
         return Utils::toFloat($input->toNative());
     }
 }
