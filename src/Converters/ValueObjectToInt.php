@@ -14,6 +14,7 @@ class ValueObjectToInt implements ConverterInterface
 {
     public function convert(ValueObjectInterface $input, ?ReflectionType $wantedType): ?int
     {
+        $native = $input->toNative();
         if (null === $native && $wantedType?->allowsNull()) {
             return null;
         }

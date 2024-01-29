@@ -1,8 +1,8 @@
 <?php
 namespace Apie\StorageMetadata\Converters;
 
-use Apie\Core\Utils\ConverterUtils;
 use Apie\Core\ValueObjects\Interfaces\ValueObjectInterface;
+use Apie\Core\ValueObjects\Utils;
 use Apie\TypeConverter\ConverterInterface;
 use ReflectionType;
 
@@ -17,6 +17,6 @@ class ValueObjectToString implements ConverterInterface
         if (null === $native && $wantedType?->allowsNull()) {
             return null;
         }
-        return $input->toNative();
+        return Utils::toString($native);
     }
 }

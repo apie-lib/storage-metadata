@@ -12,9 +12,12 @@ use ReflectionType;
  */
 class ValueObjectToFloat implements ConverterInterface
 {
-    public function convert(ValueObjectInterface $input, ?ReflectionType $wantedType): float
+    public function convert(ValueObjectInterface $input, ?ReflectionType $wantedType): ?float
     {
-        $class = ConverterUtils::toReflectionClass($wantedType);
-        return Utils::toFloat($input->toNative());
+        $native = $input->toNative();
+        if (null === $native && $wantedType?->allowsNull()) {
+            return null;
+        }
+        return Utils::toFloat($native);
     }
 }
