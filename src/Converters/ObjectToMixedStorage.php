@@ -7,11 +7,11 @@ use Apie\TypeConverter\ConverterInterface;
 use ReflectionType;
 
 /**
- * @implements ConverterInterface<object, MixedStorageInterface>
+ * @implements ConverterInterface<mixed, MixedStorageInterface>
  */
-class ObjectToMixedStorage implements ConverterInterface
+class MixedToMixedStorage implements ConverterInterface
 {
-    public function convert(object $input, ?ReflectionType $wantedType): MixedStorageInterface
+    public function convert(mixed $input, ?ReflectionType $wantedType): MixedStorageInterface
     {
         $class = ConverterUtils::toReflectionClass($wantedType);
         assert(null !== $class);
