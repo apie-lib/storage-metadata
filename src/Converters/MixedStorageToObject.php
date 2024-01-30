@@ -3,15 +3,14 @@ namespace Apie\StorageMetadata\Converters;
 
 use Apie\StorageMetadataBuilder\Interfaces\MixedStorageInterface;
 use Apie\TypeConverter\ConverterInterface;
-use ReflectionType;
 
 /**
- * @implements ConverterInterface<mixed, MixedStorageInterface>
+ * @implements ConverterInterface<MixedStorageInterface|null, mixed>
  */
 class MixedStorageToObject implements ConverterInterface
 {
-    public function convert(MixedStorageInterface $input, ?ReflectionType $wantedType): mixed
+    public function convert(?MixedStorageInterface $input): mixed
     {
-        return $input->toOriginalObject();
+        return $input?->toOriginalObject();
     }
 }

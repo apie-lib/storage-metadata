@@ -11,11 +11,14 @@ use ReflectionType;
  */
 class MixedToMixedStorage implements ConverterInterface
 {
-    public function convert(mixed $input, ?ReflectionType $wantedType): MixedStorageInterface
+    public function convert(mixed $input, ?ReflectionType $wantedType): ?MixedStorageInterface
     {
         $class = ConverterUtils::toReflectionClass($wantedType);
         assert(null !== $class);
         $className = $class->name;
+        if ($input === null && $wantedType?->allowsNull()) {
+            return null;
+        }
         return new $className($input);
     }
 }
