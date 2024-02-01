@@ -1,6 +1,7 @@
 <?php
 namespace Apie\StorageMetadata\Mediators;
 
+use Apie\Core\TypeUtils;
 use Apie\Core\Utils\ConverterUtils;
 use Apie\StorageMetadata\DomainToStorageConverter;
 use Apie\StorageMetadata\Exceptions\CouldNotCastPropertyException;
@@ -108,6 +109,8 @@ final class DomainToStorageContext
                 return $input;
             }
         } elseif ($wantedType instanceof ReflectionNamedType && $wantedType->getName() === get_debug_type($input)) {
+            return $input;
+        } elseif (TypeUtils::matchesType($wantedType, $input)) {
             return $input;
         }
         try {
