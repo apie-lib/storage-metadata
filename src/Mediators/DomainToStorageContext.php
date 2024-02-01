@@ -5,6 +5,7 @@ use Apie\Core\Utils\ConverterUtils;
 use Apie\StorageMetadata\DomainToStorageConverter;
 use Apie\StorageMetadata\Exceptions\CouldNotCastPropertyException;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
+use Apie\StorageMetadataBuilder\Interfaces\MixedStorageInterface;
 use Apie\TypeConverter\TypeConverter;
 use ReflectionClass;
 use ReflectionNamedType;
@@ -92,6 +93,9 @@ final class DomainToStorageContext
 
     public function dynamicCast(mixed $input, ?ReflectionType $wantedType): mixed
     {
+        if ($input instanceof MixedStorageInterface) {
+            $input = $input->toOriginalObject();
+        }
         if (!$wantedType || ('mixed' === (string) $wantedType)) {
             return $input;
         }
