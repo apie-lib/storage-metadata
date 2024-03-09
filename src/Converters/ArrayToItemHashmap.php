@@ -2,8 +2,11 @@
 namespace Apie\StorageMetadata\Converters;
 
 use Apie\Core\Lists\ItemHashmap;
+use Apie\Core\TypeUtils;
 use Apie\Core\Utils\ConverterUtils;
+use Apie\Core\Utils\HashmapUtils;
 use Apie\TypeConverter\ConverterInterface;
+use Apie\TypeConverter\TypeConverter;
 use ReflectionType;
 
 /**
@@ -15,11 +18,23 @@ class ArrayToItemHashmap implements ConverterInterface
     /**
      * @param array<string, T> $input
      */
-    public function convert(array $input, ?ReflectionType $wantedType): ItemHashmap
+    public function convert(array $input, ?ReflectionType $wantedType, ?TypeConverter $typeConverter = null): ItemHashmap
     {
         $class = ConverterUtils::toReflectionClass($wantedType);
         assert(null !== $class);
         $className = $class->name;
+        $arrayType = HashmapUtils::getArrayType($class);
+        if ($typeConverter !== null) {
+            $input = array_map(
+                function ($val) use ($typeConverter, $arrayType) {
+                    if (TypeUtils::matchesType($arrayType, $val)) {
+                        return $val;
+                    }
+                    return $typeConverter->convertTo($val, $arrayType);
+                },
+                $input
+            );
+        }
         return new $className($input);
     }
 }
