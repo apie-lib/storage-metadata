@@ -45,22 +45,25 @@ class OneToOneAttributeConverter implements PropertyConverterInterface
             if ($domainProperty) {
                 $storageProperty = $context->storageProperty;
                 if ($storageProperty->isInitialized($context->storageObject)) {
-                    $context->domainToStorageConverter->injectExistingStorageObject(
-                        $context->domainObject,
-                        $storageProperty->getValue($context->storageObject),
-                        $context
-                    );
-                } else {
-                    $domainPropertyValue = $domainProperty->isInitialized($context->domainObject) ? $domainProperty->getValue($context->domainObject) : null;
-                    /** @var ReflectionClass<StorageDtoInterface>|null $storageClass */
-                    $storageClass = ConverterUtils::toReflectionClass($storageProperty->getType());
-                    if ($storageClass && in_array(StorageDtoInterface::class, $storageClass->getInterfaceNames())) {
-                        $storagePropertyValue = $context->domainToStorageConverter->createStorageObject($domainPropertyValue, $storageClass, $context);
-                    } else {
-                        $storagePropertyValue = $context->dynamicCast($domainPropertyValue, $storageProperty->getType());
+                    $storagePropertyValue = $storageProperty->getValue($context->storageObject);
+                    if ($storagePropertyValue instanceof StorageDtoInterface) {
+                        $context->domainToStorageConverter->injectExistingStorageObject(
+                            $context->domainObject,
+                            $storagePropertyValue,
+                            $context
+                        );
+                        continue;
                     }
-                    $storageProperty->setValue($context->storageObject, $storagePropertyValue);
                 }
+                $domainPropertyValue = $domainProperty->isInitialized($context->domainObject) ? $domainProperty->getValue($context->domainObject) : null;
+                /** @var ReflectionClass<StorageDtoInterface>|null $storageClass */
+                $storageClass = ConverterUtils::toReflectionClass($storageProperty->getType());
+                if ($storageClass && in_array(StorageDtoInterface::class, $storageClass->getInterfaceNames())) {
+                    $storagePropertyValue = $context->domainToStorageConverter->createStorageObject($domainPropertyValue, $storageClass, $context);
+                } else {
+                    $storagePropertyValue = $context->dynamicCast($domainPropertyValue, $storageProperty->getType());
+                }
+                $storageProperty->setValue($context->storageObject, $storagePropertyValue);
             }
         }
     }
