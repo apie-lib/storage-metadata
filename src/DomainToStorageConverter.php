@@ -11,11 +11,13 @@ use Apie\StorageMetadata\Converters\ArrayToItemHashmap;
 use Apie\StorageMetadata\Converters\ArrayToItemList;
 use Apie\StorageMetadata\Converters\AutoIncrementTableToInt;
 use Apie\StorageMetadata\Converters\AutoIncrementTableToValueObject;
+use Apie\StorageMetadata\Converters\DateTimeToString;
 use Apie\StorageMetadata\Converters\EnumToString;
 use Apie\StorageMetadata\Converters\IntToAutoIncrementTable;
 use Apie\StorageMetadata\Converters\IntToValueObject;
 use Apie\StorageMetadata\Converters\MixedStorageToObject;
 use Apie\StorageMetadata\Converters\MixedToMixedStorage;
+use Apie\StorageMetadata\Converters\StringToDateTime;
 use Apie\StorageMetadata\Converters\StringToEnum;
 use Apie\StorageMetadata\Converters\StringToValueObject;
 use Apie\StorageMetadata\Converters\ValueObjectToAutoIncrementTable;
@@ -72,6 +74,8 @@ class DomainToStorageConverter
                 new MixedToMixedStorage(),
                 new ValueObjectToString(),
                 new EnumToString(),
+                new StringToDateTime(),
+                new DateTimeToString(),
                 new StringToValueObject(),
                 new StringToEnum(),
                 new ArrayToItemHashmap(),
