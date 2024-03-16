@@ -3,7 +3,6 @@ namespace Apie\StorageMetadata\Converters;
 
 use Apie\Core\Utils\ConverterUtils;
 use Apie\TypeConverter\ConverterInterface;
-use BackedEnum;
 use DateTime;
 use DateTimeInterface;
 use ReflectionType;

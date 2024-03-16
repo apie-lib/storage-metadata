@@ -1,8 +1,6 @@
 <?php
 namespace Apie\StorageMetadata\Converters;
 
-use Apie\Core\ValueObjects\Interfaces\ValueObjectInterface;
-use Apie\Core\ValueObjects\Utils;
 use Apie\TypeConverter\ConverterInterface;
 use DateTimeInterface;
 use ReflectionType;
