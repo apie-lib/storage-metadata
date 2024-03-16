@@ -3,10 +3,12 @@ namespace Apie\StorageMetadata\PropertyConverters;
 
 use Apie\Core\Context\ApieContext;
 use Apie\Core\Indexing\Indexer;
+use Apie\DoctrineEntityConverter\Entities\SearchIndex;
 use Apie\StorageMetadata\Attributes\GetSearchIndexAttribute;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;
 use Apie\TypeConverter\ReflectionTypeFactory;
+use ReflectionClass;
 
 class GetSearchIndexAttributeConverter implements PropertyConverterInterface
 {
@@ -26,14 +28,30 @@ class GetSearchIndexAttributeConverter implements PropertyConverterInterface
         $storageProperty = $context->storageProperty;
 
         foreach ($storageProperty->getAttributes(GetSearchIndexAttribute::class) as $propertyAttribute) {
+            $arrayValueType = $propertyAttribute->newInstance()->arrayValueType;
+            if ($arrayValueType && str_starts_with($arrayValueType, 'apie_')) {
+                $arrayValueType = (new ReflectionClass($context->storageObject))->getNamespaceName() . '\\' . $arrayValueType;
+            }
             $domainPropertyValue = $propertyAttribute->newInstance()->getValue($context->domainClass, $context->domainObject);
             $storagePropertyType = $storageProperty->getType();
-            if (is_bool($domainPropertyValue) || $domainPropertyValue === null) {
+            if ($domainPropertyValue === null) {
+                $indexes = [];
+            } elseif (is_bool($domainPropertyValue)) {
                 $indexes = [$domainPropertyValue ? '1' : '0'];
             } elseif (is_object($domainPropertyValue)) {
                 $indexes = array_keys($this->indexer->getIndexesForObject($domainPropertyValue, new ApieContext()));
             } else {
                 $indexes = [$context->dynamicCast($domainPropertyValue, ReflectionTypeFactory::createReflectionType('string'))];
+            }
+            if ($arrayValueType) {
+                $t = ReflectionTypeFactory::createReflectionType($arrayValueType);
+                $indexes = array_map(function ($index) use ($context, $t) {
+                    $result = $context->dynamicCast((string) $index, $t);
+                    if ($result instanceof SearchIndex) {
+                        $result->parent = $context->storageObject;
+                    }
+                    return $result;
+                }, $indexes);
             }
             $storagePropertyValue = $context->dynamicCast($indexes, $storagePropertyType);
             $context->setStoragePropertyValue($storagePropertyValue);

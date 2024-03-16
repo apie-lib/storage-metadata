@@ -13,7 +13,8 @@ class GetSearchIndexAttribute
      */
     public function __construct(
         public readonly string $methodName,
-        public readonly ?string $declaredClass = null
+        public readonly ?string $declaredClass = null,
+        public readonly ?string $arrayValueType = null,
     ) {
     }
 

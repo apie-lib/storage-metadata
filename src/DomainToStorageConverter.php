@@ -19,6 +19,7 @@ use Apie\StorageMetadata\Converters\MixedStorageToObject;
 use Apie\StorageMetadata\Converters\MixedToMixedStorage;
 use Apie\StorageMetadata\Converters\StringToDateTime;
 use Apie\StorageMetadata\Converters\StringToEnum;
+use Apie\StorageMetadata\Converters\StringToSearchIndex;
 use Apie\StorageMetadata\Converters\StringToValueObject;
 use Apie\StorageMetadata\Converters\ValueObjectToAutoIncrementTable;
 use Apie\StorageMetadata\Converters\ValueObjectToFloat;
@@ -62,6 +63,7 @@ class DomainToStorageConverter
             new ObjectToObjectConverter(),
             ...DefaultConvertersFactory::create(
                 new ArrayToDoctrineCollection(),
+                new StringToSearchIndex(),
                 new DoctrineCollectionToArray(),
                 new AutoIncrementTableToInt(),
                 new AutoIncrementTableToValueObject(),
