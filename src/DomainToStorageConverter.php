@@ -29,6 +29,7 @@ use Apie\StorageMetadata\Interfaces\ClassInstantiatorInterface;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;
+use Apie\StorageMetadata\PropertyConverters\AccessControlListAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\DefaultValueAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\DiscriminatorMappingAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\GetSearchIndexAttributeConverter;
@@ -198,6 +199,7 @@ class DomainToStorageConverter
             new DiscriminatorMappingAttributeConverter(),
             new ManyToOneAttributeConverter(),
             new OneToOneAttributeConverter(),
+            new AccessControlListAttributeConverter(),
             new OneToManyAttributeConverter(),
             new PropertyAttributeConverter(),
             new GetSearchIndexAttributeConverter($indexer ?? Indexer::create()),
