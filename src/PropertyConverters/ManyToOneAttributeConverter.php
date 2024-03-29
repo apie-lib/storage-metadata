@@ -24,7 +24,7 @@ class ManyToOneAttributeConverter implements PropertyConverterInterface
             )) {
                 $property->setValue($object, $parentObject);
             } else {
-                $property->setValue(null);
+                $property->setValue($object, null);
             }
         }
     }
