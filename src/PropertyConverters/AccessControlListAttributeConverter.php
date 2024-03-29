@@ -4,7 +4,6 @@ namespace Apie\StorageMetadata\PropertyConverters;
 use Apie\Core\Permissions\RequiresPermissionsInterface;
 use Apie\Core\ValueObjects\Utils;
 use Apie\StorageMetadata\Attributes\AclLinkAttribute;
-use Apie\StorageMetadata\Attributes\OneToManyAttribute;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;

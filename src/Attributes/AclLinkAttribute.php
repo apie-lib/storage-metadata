@@ -4,7 +4,6 @@ namespace Apie\StorageMetadata\Attributes;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Attribute;
 use ReflectionClass;
-use ReflectionException;
 use ReflectionProperty;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
