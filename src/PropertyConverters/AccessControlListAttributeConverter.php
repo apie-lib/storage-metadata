@@ -9,6 +9,7 @@ use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;
 use ReflectionClass;
+use ReflectionProperty;
 
 class AccessControlListAttributeConverter implements PropertyConverterInterface
 {
@@ -59,10 +60,14 @@ class AccessControlListAttributeConverter implements PropertyConverterInterface
                     }
                 } else {
                     $storageProperties[$arrayKey] = $storageClassRefl->newInstance(Utils::toString($arrayValue));
-                    // @phpstan-ignore-next-line
-                    $storageProperties[$arrayKey]->listOrder = $arrayKey;
-                    // @phpstan-ignore-next-line
-                    $storageProperties[$arrayKey]->parent = $context->storageObject;
+                    $properties = $storageClassRefl->getProperties(ReflectionProperty::IS_PUBLIC);
+                    foreach ($properties as $property) {
+                        ManyToOneAttributeConverter::applyToProperty(
+                            $property,
+                            $storageProperties[$arrayKey],
+                            $context->storageObject
+                        );
+                    }
                 }
             }
             $context->storageProperty->setValue($context->storageObject, $context->dynamicCast($storageProperties, $context->storageProperty->getType()));
