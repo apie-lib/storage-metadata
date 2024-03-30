@@ -13,7 +13,8 @@ class GetMethodAttribute
      */
     public function __construct(
         public readonly string $methodName,
-        public readonly ?string $declaredClass = null
+        public readonly ?string $declaredClass = null,
+        public readonly bool $allowLargeStrings = false
     ) {
     }
 

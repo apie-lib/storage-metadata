@@ -14,7 +14,8 @@ class PropertyAttribute
      */
     public function __construct(
         public readonly string $propertyName,
-        public readonly ?string $declaredClass = null
+        public readonly ?string $declaredClass = null,
+        public readonly bool $allowLargeStrings = false
     ) {
     }
 
