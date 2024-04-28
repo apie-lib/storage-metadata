@@ -9,6 +9,7 @@ use Apie\StorageMetadata\Mediators\DomainToStorageContext;
 use Apie\StorageMetadataBuilder\Interfaces\MixedStorageInterface;
 use Apie\TypeConverter\ReflectionTypeFactory;
 use ReflectionClass;
+use Throwable;
 
 class OneToManyAttributeConverter implements PropertyConverterInterface
 {
@@ -65,8 +66,25 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
             if ($domainProperty) {
                 $domainPropertyValue = Utils::toArray($domainProperty->getValue($context->domainObject));
                 $storageProperties = $context->storageProperty->isInitialized($context->storageObject)
-                    ? Utils::toArray($context->storageProperty->getValue($context->storageObject))
+                    ? $context->storageProperty->getValue($context->storageObject)
                     : [];
+                $keysToRemove = array_diff(
+                    array_keys(Utils::toArray($storageProperties)),
+                    array_keys($domainPropertyValue),
+                );
+                try {
+                    foreach ($keysToRemove as $keyToRemove) {
+                        unset($storageProperties[$keyToRemove]);
+                        // this is an edge case where we have some item list that can not unset values
+                        if (isset($storageProperties[$keyToRemove])) {
+                            $storageProperties = $context->dynamicCast([], $context->storageProperty->getType());
+                            break;
+                        }
+                    }
+                } catch (Throwable) {
+                    // another edge case where an array object class throws an exception.
+                    $storageProperties = $context->dynamicCast([], $context->storageProperty->getType());
+                }
                 foreach ($domainPropertyValue as $arrayKey => $arrayValue) {
                     $arrayContext = $context->withArrayKey($arrayKey);
                     $storageClassRefl = $this->toReflClass($oneToManyAttribute->newInstance()->storageClass);
@@ -92,7 +110,9 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
                         $storageProperties[$arrayKey]->parent = $context->storageObject;
                     }
                 }
-                $context->storageProperty->setValue($context->storageObject, $context->dynamicCast($storageProperties, $context->storageProperty->getType()));
+                if (!$context->storageProperty->isInitialized($context->storageObject)) {
+                    $context->storageProperty->setValue($context->storageObject, $context->dynamicCast($storageProperties, $context->storageProperty->getType()));
+                }
             }
         }
     }
