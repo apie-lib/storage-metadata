@@ -9,6 +9,7 @@ use Apie\StorageMetadata\ClassInstantiators\FromReflection;
 use Apie\StorageMetadata\ClassInstantiators\FromStorage;
 use Apie\StorageMetadata\Converters\ArrayToItemHashmap;
 use Apie\StorageMetadata\Converters\ArrayToItemList;
+use Apie\StorageMetadata\Converters\ArrayToItemSet;
 use Apie\StorageMetadata\Converters\AutoIncrementTableToInt;
 use Apie\StorageMetadata\Converters\AutoIncrementTableToValueObject;
 use Apie\StorageMetadata\Converters\DateTimeToString;
@@ -83,6 +84,7 @@ class DomainToStorageConverter
                 new StringToEnum(),
                 new ArrayToItemHashmap(),
                 new ArrayToItemList(),
+                new ArrayToItemSet(),
             )
         );
     }
