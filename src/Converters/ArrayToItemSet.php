@@ -1,7 +1,6 @@
 <?php
 namespace Apie\StorageMetadata\Converters;
 
-use Apie\Core\Lists\ItemList;
 use Apie\Core\Lists\ItemSet;
 use Apie\Core\TypeUtils;
 use Apie\Core\Utils\ConverterUtils;
