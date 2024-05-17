@@ -2,6 +2,7 @@
 namespace Apie\Tests\StorageMetadata;
 
 use Apie\Core\Entities\EntityInterface;
+use Apie\Core\ValueObjects\DatabaseText;
 use Apie\Fixtures\Entities\Order;
 use Apie\Fixtures\Entities\OrderLine;
 use Apie\Fixtures\Entities\Polymorphic\Animal;
@@ -22,7 +23,6 @@ use Apie\Tests\StorageMetadata\Fixtures\AnimalStorage;
 use Apie\Tests\StorageMetadata\Fixtures\OrderLineStorage;
 use Apie\Tests\StorageMetadata\Fixtures\OrderStorage;
 use Apie\Tests\StorageMetadata\Fixtures\UserWithAddressStorage;
-use Apie\TextValueObjects\DatabaseText;
 use Generator;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
