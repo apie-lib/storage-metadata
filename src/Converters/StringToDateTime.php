@@ -17,7 +17,7 @@ class StringToDateTime implements ConverterInterface
         $class = ConverterUtils::toReflectionClass($wantedType);
         assert(null !== $class);
         $className = $class->name;
-        return match($className) {
+        return match ($className) {
             DateTimeInterface::class => new DateTime($input),
             default => new $className($input),
         };
