@@ -3,6 +3,7 @@ namespace Apie\StorageMetadata\PropertyConverters;
 
 use Apie\Core\Context\ApieContext;
 use Apie\Core\Indexing\Indexer;
+use Apie\CountWords\WordCounter;
 use Apie\DoctrineEntityConverter\Entities\SearchIndex;
 use Apie\StorageMetadata\Attributes\GetSearchIndexAttribute;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
@@ -40,6 +41,8 @@ class GetSearchIndexAttributeConverter implements PropertyConverterInterface
                 $indexes = [$domainPropertyValue ? '1' : '0'];
             } elseif (is_object($domainPropertyValue)) {
                 $indexes = array_keys($this->indexer->getIndexesForObject($domainPropertyValue, new ApieContext()));
+            } elseif (is_resource($domainPropertyValue)) {
+                $indexes = WordCounter::countFromResource($domainPropertyValue);
             } else {
                 $indexes = [$context->dynamicCast($domainPropertyValue, ReflectionTypeFactory::createReflectionType('string'))];
             }
