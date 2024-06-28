@@ -1,6 +1,7 @@
 <?php
 namespace Apie\StorageMetadata\ClassInstantiators;
 
+use Apie\Core\ValueObjects\Utils;
 use Apie\StorageMetadata\Interfaces\ClassInstantiatorInterface;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use ReflectionClass;
@@ -35,6 +36,10 @@ final class ChainedClassInstantiator implements ClassInstantiatorInterface
                 return $classInstantiator->create($class, $storageObject);
             }
         }
-        throw new RuntimeException('How is create() being called without calling supports() first?');
+        throw new RuntimeException(sprintf(
+            'Class "%s" for storage object "%s" not supported for instantiation',
+            Utils::displayMixedAsString($class->name),
+            Utils::displayMixedAsString($storageObject),
+        ));
     }
 }
