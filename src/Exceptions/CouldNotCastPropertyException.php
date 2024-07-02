@@ -16,10 +16,11 @@ class CouldNotCastPropertyException extends ApieException
     ) {
         parent::__construct(
             sprintf(
-                'Could not cast to type %s from storage property "%s" from domain object "%s"',
+                'Could not cast to type %s from storage property "%s" from domain object "%s": %s',
                 (string) $wantedType,
                 $storageProperty ? $storageProperty->name : '(null)',
-                get_debug_type($domainObject)
+                get_debug_type($domainObject),
+                $previous->getMessage()
             ),
             0,
             $previous

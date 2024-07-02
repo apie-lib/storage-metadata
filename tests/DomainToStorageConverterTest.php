@@ -2,7 +2,10 @@
 namespace Apie\Tests\StorageMetadata;
 
 use Apie\Core\Entities\EntityInterface;
+use Apie\Core\FileStorage\FileStorageFactory;
+use Apie\Core\Other\UploadedFileFactory;
 use Apie\Core\ValueObjects\DatabaseText;
+use Apie\Fixtures\Entities\ImageFile;
 use Apie\Fixtures\Entities\Order;
 use Apie\Fixtures\Entities\OrderLine;
 use Apie\Fixtures\Entities\Polymorphic\Animal;
@@ -10,6 +13,7 @@ use Apie\Fixtures\Entities\Polymorphic\AnimalIdentifier;
 use Apie\Fixtures\Entities\Polymorphic\Elephant;
 use Apie\Fixtures\Entities\UserWithAddress;
 use Apie\Fixtures\Enums\OrderStatus;
+use Apie\Fixtures\Identifiers\ImageFileIdentifier;
 use Apie\Fixtures\Identifiers\OrderIdentifier;
 use Apie\Fixtures\Identifiers\OrderLineIdentifier;
 use Apie\Fixtures\Identifiers\UserWithAddressIdentifier;
@@ -20,6 +24,7 @@ use Apie\StorageMetadata\DomainToStorageConverter;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Apie\Tests\StorageMetadata\Fixtures\AddressStorage;
 use Apie\Tests\StorageMetadata\Fixtures\AnimalStorage;
+use Apie\Tests\StorageMetadata\Fixtures\FileStorage;
 use Apie\Tests\StorageMetadata\Fixtures\OrderLineStorage;
 use Apie\Tests\StorageMetadata\Fixtures\OrderStorage;
 use Apie\Tests\StorageMetadata\Fixtures\UserWithAddressStorage;
@@ -38,7 +43,7 @@ class DomainToStorageConverterTest extends TestCase
         $domainObject->setPassword(new Password('Aa1234!'));
         $this->assertTrue($domainObject->hasPassword(), 'hasPassword() should return true if it has a password');
         $addressHash = spl_object_hash($domainObject->getAddress());
-        $testItem = DomainToStorageConverter::create();
+        $testItem = DomainToStorageConverter::create(FileStorageFactory::create());
         $testItem->injectExistingDomainObject(
             $domainObject,
             $this->createUserForStorage()
@@ -53,7 +58,7 @@ class DomainToStorageConverterTest extends TestCase
      */
     public function it_can_convert_a_storage_object_to_domain_object(EntityInterface $domainObject, StorageDtoInterface $storageObject)
     {
-        $testItem = DomainToStorageConverter::create();
+        $testItem = DomainToStorageConverter::create(FileStorageFactory::create());
         $actual = $testItem->createDomainObject($storageObject);
         $this->assertEquals(
             $domainObject,
@@ -67,8 +72,7 @@ class DomainToStorageConverterTest extends TestCase
      */
     public function it_can_convert_a_domain_object_to_a_storage_object(EntityInterface $domainObject, StorageDtoInterface $storageObject)
     {
-        $testItem = DomainToStorageConverter::create();
-        //$this->assertTrue($storageObject::getClassReference()->isInstance($domainObject));
+        $testItem = DomainToStorageConverter::create(FileStorageFactory::create());
         $actual = $testItem->createStorageObject($domainObject, new ReflectionClass($storageObject));
         $this->assertEquals(
             $storageObject,
@@ -81,6 +85,27 @@ class DomainToStorageConverterTest extends TestCase
         yield 'object with composite' => [$this->createUserForDomainObject(), $this->createUserForStorage()];
         yield 'object with one to many' => [$this->createOrderForDomainObject(), $this->createOrderForStorage()];
         yield 'polymorphic object' => [$this->createElephantForDomainObject(), $this->createElephantForStorage()];
+        yield 'file storage' => [$this->createFileStorageForDomainObject(), $this->createFileStorageForStorage()];
+    }
+
+    private function createFileStorageForDomainObject(): ImageFile
+    {
+        $file = UploadedFileFactory::createUploadedFileFromString('<svg></svg>', 'example.svg', 'image/svg');
+        return new ImageFile(
+            ImageFileIdentifier::fromNative('550e8400-e29b-41d4-a716-446655440001'),
+            $file,
+            "Image metadata"
+        );
+    }
+
+    private function createFileStorageForStorage()
+    {
+        return new FileStorage(
+            '550e8400-e29b-41d4-a716-446655440001',
+            '550e8400-e29b-41d4-a716-446655440001',
+            "Image metadata",
+            'image/svg|example.svg|<svg></svg>'
+        );
     }
 
     private function createElephantForStorage(): AnimalStorage

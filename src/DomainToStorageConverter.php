@@ -1,6 +1,7 @@
 <?php
 namespace Apie\StorageMetadata;
 
+use Apie\Core\FileStorage\ChainedFileStorage;
 use Apie\Core\Indexing\Indexer;
 use Apie\Core\TypeConverters\ArrayToDoctrineCollection;
 use Apie\Core\TypeConverters\DoctrineCollectionToArray;
@@ -21,7 +22,9 @@ use Apie\StorageMetadata\Converters\MixedToMixedStorage;
 use Apie\StorageMetadata\Converters\StringToDateTime;
 use Apie\StorageMetadata\Converters\StringToEnum;
 use Apie\StorageMetadata\Converters\StringToSearchIndex;
+use Apie\StorageMetadata\Converters\StringToUploadedFileInterface;
 use Apie\StorageMetadata\Converters\StringToValueObject;
+use Apie\StorageMetadata\Converters\UploadedFileInterfaceToString;
 use Apie\StorageMetadata\Converters\ValueObjectToAutoIncrementTable;
 use Apie\StorageMetadata\Converters\ValueObjectToFloat;
 use Apie\StorageMetadata\Converters\ValueObjectToInt;
@@ -54,6 +57,7 @@ class DomainToStorageConverter
 
     public function __construct(
         private readonly ClassInstantiatorInterface $classInstantiator,
+        private readonly ChainedFileStorage $fileStorage,
         PropertyConverterInterface... $propertyConverters
     ) {
         $this->propertyConverters = $propertyConverters;
@@ -64,6 +68,8 @@ class DomainToStorageConverter
         return new TypeConverter(
             new ObjectToObjectConverter(),
             ...DefaultConvertersFactory::create(
+                new StringToUploadedFileInterface($this->fileStorage),
+                new UploadedFileInterfaceToString($this->fileStorage),
                 new ArrayToDoctrineCollection(),
                 new StringToSearchIndex(),
                 new DoctrineCollectionToArray(),
@@ -191,13 +197,14 @@ class DomainToStorageConverter
         return $storageObject;
     }
 
-    public static function create(?Indexer $indexer = null): self
+    public static function create(ChainedFileStorage $fileStorage, ?Indexer $indexer = null): self
     {
         return new self(
             new ChainedClassInstantiator(
                 new FromStorage(),
                 new FromReflection(),
             ),
+            $fileStorage,
             new DiscriminatorMappingAttributeConverter(),
             new ManyToOneAttributeConverter(),
             new OneToOneAttributeConverter(),
