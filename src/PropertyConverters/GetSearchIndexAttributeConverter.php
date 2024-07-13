@@ -43,6 +43,8 @@ class GetSearchIndexAttributeConverter implements PropertyConverterInterface
                 $indexes = array_keys($this->indexer->getIndexesForObject($domainPropertyValue, new ApieContext()));
             } elseif (is_resource($domainPropertyValue)) {
                 $indexes = WordCounter::countFromResource($domainPropertyValue);
+            } elseif (get_debug_type($domainPropertyValue) === 'resource (closed)') {
+                $indexes = [];
             } else {
                 $indexes = [$context->dynamicCast($domainPropertyValue, ReflectionTypeFactory::createReflectionType('string'))];
             }

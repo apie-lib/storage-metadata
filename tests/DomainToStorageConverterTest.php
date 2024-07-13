@@ -3,7 +3,7 @@ namespace Apie\Tests\StorageMetadata;
 
 use Apie\Core\Entities\EntityInterface;
 use Apie\Core\FileStorage\FileStorageFactory;
-use Apie\Core\Other\UploadedFileFactory;
+use Apie\Core\FileStorage\StoredFile;
 use Apie\Core\ValueObjects\DatabaseText;
 use Apie\Fixtures\Entities\ImageFile;
 use Apie\Fixtures\Entities\Order;
@@ -90,7 +90,7 @@ class DomainToStorageConverterTest extends TestCase
 
     private function createFileStorageForDomainObject(): ImageFile
     {
-        $file = UploadedFileFactory::createUploadedFileFromString('<svg></svg>', 'example.svg', 'image/svg');
+        $file = StoredFile::createFromString('<svg></svg>', 'image/svg', 'example.svg');
         return new ImageFile(
             ImageFileIdentifier::fromNative('550e8400-e29b-41d4-a716-446655440001'),
             $file,
@@ -104,7 +104,7 @@ class DomainToStorageConverterTest extends TestCase
             '550e8400-e29b-41d4-a716-446655440001',
             '550e8400-e29b-41d4-a716-446655440001',
             "Image metadata",
-            'image/svg|example.svg|<svg></svg>'
+            'image/svg|example.svg|PHN2Zz48L3N2Zz4='
         );
     }
 
