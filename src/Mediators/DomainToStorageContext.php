@@ -1,6 +1,7 @@
 <?php
 namespace Apie\StorageMetadata\Mediators;
 
+use Apie\Core\FileStorage\FileStorageInterface;
 use Apie\Core\TypeUtils;
 use Apie\Core\Utils\ConverterUtils;
 use Apie\StorageMetadata\DomainToStorageConverter;
@@ -37,6 +38,7 @@ final class DomainToStorageContext
         public readonly TypeConverter $typeConverter,
         public readonly StorageDtoInterface $storageObject,
         public readonly object $domainObject,
+        public readonly FileStorageInterface $fileStorage,
         ?ReflectionClass $domainClass = null
     ) {
         $this->domainClass = $domainClass ?? new ReflectionClass($domainObject);
@@ -52,10 +54,18 @@ final class DomainToStorageContext
         TypeConverter $typeConverter,
         StorageDtoInterface $storageObject,
         object $domainObject,
+        FileStorageInterface $fileStorage,
         ?ReflectionClass $domainClass = null,
         ?DomainToStorageContext $context = null,
     ): self {
-        $res = new self($domainToStorageConverter, $typeConverter, $storageObject, $domainObject, $domainClass);
+        $res = new self(
+            $domainToStorageConverter,
+            $typeConverter,
+            $storageObject,
+            $domainObject,
+            $fileStorage,
+            $domainClass
+        );
         $fields = [
             'parentContext' => $context,
         ];

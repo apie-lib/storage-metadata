@@ -2,6 +2,7 @@
 namespace Apie\StorageMetadata\PropertyConverters;
 
 use Apie\StorageMetadata\Attributes\GetMethodAttribute;
+use Apie\StorageMetadata\Attributes\GetMethodOrPropertyAttribute;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;
 
@@ -18,7 +19,12 @@ class MethodAttributeConverter implements PropertyConverterInterface
     ): void {
         $storageProperty = $context->storageProperty;
 
-        foreach ($storageProperty->getAttributes(GetMethodAttribute::class) as $propertyAttribute) {
+        $propertyAttributes = [
+            ...$storageProperty->getAttributes(GetMethodAttribute::class),
+            ...$storageProperty->getAttributes(GetMethodOrPropertyAttribute::class),
+        ];
+
+        foreach ($propertyAttributes as $propertyAttribute) {
             $domainMethod = $propertyAttribute->newInstance()->getReflectionMethod($context->domainClass, $context->domainObject);
             if ($domainMethod) {
                 $storagePropertyType = $storageProperty->getType();

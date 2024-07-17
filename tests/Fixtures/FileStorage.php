@@ -3,6 +3,7 @@ namespace Apie\Tests\StorageMetadata\Fixtures;
 
 use Apie\Fixtures\Entities\ImageFile;
 use Apie\StorageMetadata\Attributes\GetMethodAttribute;
+use Apie\StorageMetadata\Attributes\OneToOneAttribute;
 use Apie\StorageMetadata\Attributes\PropertyAttribute;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use ReflectionClass;
@@ -21,8 +22,8 @@ class FileStorage implements StorageDtoInterface
         public ?string $apieId,
         #[PropertyAttribute('alternativeText', allowLargeStrings: true)]
         public ?string $apieAlternativeText,
-        #[PropertyAttribute('file', allowLargeStrings: true)]
-        public ?string $apieFile
+        #[OneToOneAttribute('file')]
+        public UploadedFileStorage $apieFile
     ) {
     }
 }

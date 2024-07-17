@@ -1,9 +1,12 @@
 <?php
 namespace Apie\StorageMetadata\Converters;
 
-use Apie\Core\FileStorage\PsrAwareStorageInterface;
+use Apie\Core\FileStorage\FileStorageInterface;
+use Apie\Core\FileStorage\StoredFile;
+use Apie\Core\Utils\ConverterUtils;
 use Apie\TypeConverter\ConverterInterface;
 use Psr\Http\Message\UploadedFileInterface;
+use ReflectionClass;
 use ReflectionType;
 
 /**
@@ -12,7 +15,7 @@ use ReflectionType;
 class StringToUploadedFileInterface implements ConverterInterface
 {
     public function __construct(
-        private readonly PsrAwareStorageInterface $psrAwareStorage
+        private readonly FileStorageInterface $fileStorage
     ) {
     }
 
@@ -21,6 +24,13 @@ class StringToUploadedFileInterface implements ConverterInterface
         if ($input === null) {
             return null;
         }
-        return $this->psrAwareStorage->pathToPsr($input);
+        /** @var ReflectionClass<StoredFile>|null $class */
+        $class = ConverterUtils::toReflectionClass($wantedType);
+        $res = $this->fileStorage->getProxy(
+            $input,
+            in_array($class?->name, [UploadedFileInterface::class, null]) ? StoredFile::class : $class->name
+        );
+
+        return $res;
     }
 }

@@ -8,6 +8,7 @@ use Apie\Core\TypeConverters\DoctrineCollectionToArray;
 use Apie\StorageMetadata\ClassInstantiators\ChainedClassInstantiator;
 use Apie\StorageMetadata\ClassInstantiators\FromReflection;
 use Apie\StorageMetadata\ClassInstantiators\FromStorage;
+use Apie\StorageMetadata\ClassInstantiators\FromStoredFile;
 use Apie\StorageMetadata\Converters\ArrayToItemHashmap;
 use Apie\StorageMetadata\Converters\ArrayToItemList;
 use Apie\StorageMetadata\Converters\ArrayToItemSet;
@@ -44,6 +45,7 @@ use Apie\StorageMetadata\PropertyConverters\OneToOneAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\OrderAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\ParentAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\PropertyAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\StorageMappingAttributeConverter;
 use Apie\TypeConverter\Converters\ObjectToObjectConverter;
 use Apie\TypeConverter\DefaultConvertersFactory;
 use Apie\TypeConverter\TypeConverter;
@@ -112,6 +114,7 @@ class DomainToStorageConverter
             $typeConverter,
             $storageObject,
             $domainObject,
+            $this->fileStorage,
             $domainClass,
             $context
         );
@@ -177,6 +180,7 @@ class DomainToStorageConverter
             $typeConverter,
             $storageObject,
             $domainObject,
+            $this->fileStorage,
             $domainClass,
             $context
         );
@@ -201,11 +205,13 @@ class DomainToStorageConverter
     {
         return new self(
             new ChainedClassInstantiator(
+                new FromStoredFile(),
                 new FromStorage(),
                 new FromReflection(),
             ),
             $fileStorage,
             new DiscriminatorMappingAttributeConverter(),
+            new StorageMappingAttributeConverter(),
             new ManyToOneAttributeConverter(),
             new OneToOneAttributeConverter(),
             new AccessControlListAttributeConverter(),

@@ -2,6 +2,7 @@
 namespace Apie\StorageMetadata\PropertyConverters;
 
 use Apie\Core\Attributes\Optional;
+use Apie\StorageMetadata\Attributes\GetMethodOrPropertyAttribute;
 use Apie\StorageMetadata\Attributes\PropertyAttribute;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;
@@ -12,8 +13,11 @@ class PropertyAttributeConverter implements PropertyConverterInterface
         DomainToStorageContext $context
     ): void {
         $storageProperty = $context->storageProperty;
-
-        foreach ($storageProperty->getAttributes(PropertyAttribute::class) as $propertyAttribute) {
+        $propertyAttributes = [
+            ...$storageProperty->getAttributes(PropertyAttribute::class),
+            ...$storageProperty->getAttributes(GetMethodOrPropertyAttribute::class),
+        ];
+        foreach ($propertyAttributes as $propertyAttribute) {
             $domainProperty = $propertyAttribute->newInstance()->getReflectionProperty($context->domainClass, $context->domainObject);
             if ($domainProperty && (!$domainProperty->isInitialized($context->domainObject) || !$domainProperty->isReadOnly())) {
                 $domainPropertyType = $domainProperty->getType();
