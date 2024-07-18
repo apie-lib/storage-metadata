@@ -31,7 +31,10 @@ class UploadedFileStorage implements StorageDtoInterface
         #[GetMethodOrPropertyAttribute('getServerPath', 'serverPath')]
         public ?string $serverPath = null,
         #[GetMethodOrPropertyAttribute('getIndexing', 'indexing')]
-        public array $indexing = []
+        public array $indexing = [],
+        // TODO: remove this by changing the tests
+        #[GetMethodOrPropertyAttribute('getContent', 'content')]
+        public ?string $content = null,
     ) {
     }
 }

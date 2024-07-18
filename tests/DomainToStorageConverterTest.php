@@ -86,12 +86,17 @@ class DomainToStorageConverterTest extends TestCase
         yield 'object with composite' => [$this->createUserForDomainObject(), $this->createUserForStorage()];
         yield 'object with one to many' => [$this->createOrderForDomainObject(), $this->createOrderForStorage()];
         yield 'polymorphic object' => [$this->createElephantForDomainObject(), $this->createElephantForStorage()];
-        //yield 'file storage' => [$this->createFileStorageForDomainObject(), $this->createFileStorageForStorage()];
+        yield 'file storage' => [$this->createFileStorageForDomainObject(), $this->createFileStorageForStorage()];
     }
 
     private function createFileStorageForDomainObject(): ImageFile
     {
-        $file = StoredFile::createFromString('<svg></svg>', 'image/svg', 'example.svg');
+        $file = StoredFile::createFromString('<svg></svg>', 'image/svg', 'example.svg')
+            ->markBeingStored(FileStorageFactory::create(), 'image/svg|example.svg|PHN2Zz48L3N2Zz4=');
+        $file->getIndexing();
+        $file->getServerMimeType();
+        $file->getSize();
+        $file->getContent();
         return new ImageFile(
             ImageFileIdentifier::fromNative('550e8400-e29b-41d4-a716-446655440001'),
             $file,
@@ -109,7 +114,11 @@ class DomainToStorageConverterTest extends TestCase
                 FileStorageFactory::create(),
                 clientMimeType: 'image/svg',
                 clientOriginalFile: 'example.svg',
-                storagePath: 'image/svg|example.svg|PHN2Zz48L3N2Zz4='
+                storagePath: 'image/svg|example.svg|PHN2Zz48L3N2Zz4=',
+                fileSize: 11,
+                serverMimeType: 'image/svg+xml',
+                indexing: [],
+                content: '<svg></svg>',
             )
         );
     }
