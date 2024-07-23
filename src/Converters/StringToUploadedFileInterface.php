@@ -21,7 +21,7 @@ class StringToUploadedFileInterface implements ConverterInterface
 
     public function convert(?string $input, ?ReflectionType $wantedType): ?UploadedFileInterface
     {
-        if ($input === null) {
+        if ($input === null || 'null' === (string) $wantedType) {
             return null;
         }
         /** @var ReflectionClass<StoredFile>|null $class */

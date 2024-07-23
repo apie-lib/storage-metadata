@@ -20,19 +20,22 @@ class OneToOneAttributeConverter implements PropertyConverterInterface
                 $storagePropertyValue = $context->getStoragePropertyValue();
                 $domainPropertyType = $domainProperty->getType();
                 if ($domainProperty->isInitialized($context->domainObject) && $storagePropertyValue instanceof StorageDtoInterface) {
-                    $context->domainToStorageConverter->injectExistingDomainObject(
-                        $context->domainObject,
-                        $storagePropertyValue
-                    );
-                } else {
-                    $domainPropertyValue = $storagePropertyValue instanceof StorageDtoInterface
-                        ? $context->domainToStorageConverter->createDomainObject($storagePropertyValue)
-                        : $context->dynamicCast($storagePropertyValue, $domainPropertyType);
-                    if (!$domainPropertyType->allowsNull() && $domainPropertyValue === null && $domainProperty->getAttributes(Optional::class)) {
+                    $domainPropertyValue = $domainProperty->getValue($context->domainObject);
+                    if ($domainPropertyValue) {
+                        $context->domainToStorageConverter->injectExistingDomainObject(
+                            $domainPropertyValue,
+                            $storagePropertyValue
+                        );
                         continue;
                     }
-                    $domainProperty->setValue($context->domainObject, $domainPropertyValue);
                 }
+                $domainPropertyValue = $storagePropertyValue instanceof StorageDtoInterface
+                    ? $context->domainToStorageConverter->createDomainObject($storagePropertyValue)
+                    : $context->dynamicCast($storagePropertyValue, $domainPropertyType);
+                if (!$domainPropertyType->allowsNull() && $domainPropertyValue === null && $domainProperty->getAttributes(Optional::class)) {
+                    continue;
+                }
+                $domainProperty->setValue($context->domainObject, $domainPropertyValue);
             }
         }
     }

@@ -1,7 +1,6 @@
 <?php
 namespace Apie\StorageMetadata\ClassInstantiators;
 
-use Apie\Core\FileStorage\StoredFile;
 use Apie\StorageMetadata\Interfaces\ClassInstantiatorInterface;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -14,16 +13,7 @@ final class FromStoredFile implements ClassInstantiatorInterface
         if ($storageObject === null) {
             return false;
         }
-        if (in_array($class->name, [UploadedFileInterface::class, StoredFile::class])) {
-            return true;
-        }
-        while ($class) {
-            if ($class->name === StoredFile::class) {
-                return true;
-            }
-            $class = $class->getParentClass();
-        }
-        return false;
+        return in_array(UploadedFileInterface::class, $class->getInterfaceNames());
     }
 
     public function create(ReflectionClass $class, ?StorageDtoInterface $storageObject = null): object

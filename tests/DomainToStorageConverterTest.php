@@ -117,7 +117,7 @@ class DomainToStorageConverterTest extends TestCase
                 storagePath: 'image/svg|example.svg|PHN2Zz48L3N2Zz4=',
                 fileSize: 11,
                 serverMimeType: 'image/svg+xml',
-                indexing: [],
+                indexing: ['svgsvg' => 1],
                 content: '<svg></svg>',
             )
         );

@@ -84,6 +84,11 @@ final class DomainToStorageContext
         return $this->clone(['storageProperty' => $storageProperty]);
     }
 
+    public function withDomainObject(object $object): self
+    {
+        return $this->clone(['domainObject' => $object]);
+    }
+
     public function withArrayKey(string|int $key): self
     {
         return $this->clone(['arrayKey' => $key]);

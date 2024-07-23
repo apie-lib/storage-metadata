@@ -37,8 +37,10 @@ class GetMethodOrPropertyAttribute extends PropertyAttribute
      * @param ReflectionClass<T> $targetClass
      * @param T $instance
      */
-    public function getReflectionProperty(ReflectionClass $targetClass, object $instance): ?ReflectionProperty
-    {
+    public function getReflectionProperty(
+        ReflectionClass $targetClass,
+        object $instance
+    ): ?ReflectionProperty {
         $method = $this->getReflectionMethod($targetClass, $instance);
         if ($method) {
             $method->invoke($instance);
