@@ -42,7 +42,7 @@ class GetSearchIndexAttributeConverter implements PropertyConverterInterface
             } elseif (is_object($domainPropertyValue)) {
                 $indexes = array_keys($this->indexer->getIndexesForObject($domainPropertyValue, new ApieContext()));
             } elseif (is_resource($domainPropertyValue)) {
-                $indexes = WordCounter::countFromResource($domainPropertyValue);
+                $indexes = array_keys(WordCounter::countFromResource($domainPropertyValue));
             } elseif (get_debug_type($domainPropertyValue) === 'resource (closed)') {
                 $indexes = [];
             } else {
