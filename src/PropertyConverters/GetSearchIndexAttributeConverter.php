@@ -3,7 +3,6 @@ namespace Apie\StorageMetadata\PropertyConverters;
 
 use Apie\Core\Context\ApieContext;
 use Apie\Core\Indexing\Indexer;
-use Apie\CountWords\WordCounter;
 use Apie\DoctrineEntityConverter\Entities\SearchIndex;
 use Apie\StorageMetadata\Attributes\GetSearchIndexAttribute;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
@@ -51,7 +50,7 @@ class GetSearchIndexAttributeConverter implements PropertyConverterInterface
             if ($arrayValueType) {
                 $t = ReflectionTypeFactory::createReflectionType($arrayValueType);
                 $indexes = array_map(function ($index) use ($context, $t) {
-                    $result = $context->dynamicCast((string) $index, $t);
+                    $result = $context->dynamicCast(substr((string) $index, 0, 255), $t);
                     if ($result instanceof SearchIndex) {
                         $result->parent = $context->storageObject;
                     }
