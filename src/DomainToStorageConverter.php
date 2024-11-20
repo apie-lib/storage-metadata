@@ -9,6 +9,7 @@ use Apie\StorageMetadata\ClassInstantiators\ChainedClassInstantiator;
 use Apie\StorageMetadata\ClassInstantiators\FromReflection;
 use Apie\StorageMetadata\ClassInstantiators\FromStorage;
 use Apie\StorageMetadata\ClassInstantiators\FromStoredFile;
+use Apie\StorageMetadata\Converters\ApieListToArray;
 use Apie\StorageMetadata\Converters\ArrayToItemHashmap;
 use Apie\StorageMetadata\Converters\ArrayToItemList;
 use Apie\StorageMetadata\Converters\ArrayToItemSet;
@@ -75,6 +76,7 @@ class DomainToStorageConverter
                 new ArrayToDoctrineCollection(),
                 new StringToSearchIndex(),
                 new DoctrineCollectionToArray(),
+                new ApieListToArray(),
                 new AutoIncrementTableToInt(),
                 new AutoIncrementTableToValueObject(),
                 new IntToAutoIncrementTable(),
