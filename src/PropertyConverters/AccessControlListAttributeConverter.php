@@ -40,6 +40,11 @@ class AccessControlListAttributeConverter implements PropertyConverterInterface
             $storageProperties = $context->storageProperty->isInitialized($context->storageObject)
                 ? Utils::toArray($context->storageProperty->getValue($context->storageObject))
                 : [];
+            // in case there are no required permissions, we need to add a '' record because we need the record with JOIN
+            // see RequiresPermissionFilter class.
+            if (empty($domainPropertyValue)) {
+                $domainPropertyValue = [''];
+            }
             foreach ($domainPropertyValue as $arrayKey => $arrayValue) {
                 $arrayContext = $context->withArrayKey($arrayKey);
                 $storageClassRefl = $this->toReflClass($oneToManyAttribute->newInstance()->storageClass);
