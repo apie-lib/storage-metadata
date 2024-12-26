@@ -35,9 +35,7 @@ use ReflectionClass;
 
 class DomainToStorageConverterTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_inject_values_in_an_existing_domain_object()
     {
         $domainObject = $this->createUserForDomainObject();
@@ -53,10 +51,8 @@ class DomainToStorageConverterTest extends TestCase
         $this->assertFalse($domainObject->hasPassword(), 'hasPassword() should return false after update from storage object');
     }
 
-    /**
-     * @test
-     * @dataProvider provideDomainObjects
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideDomainObjects')]
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_convert_a_storage_object_to_domain_object(EntityInterface $domainObject, StorageDtoInterface $storageObject)
     {
         $testItem = DomainToStorageConverter::create(FileStorageFactory::create());
@@ -67,10 +63,8 @@ class DomainToStorageConverterTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider provideDomainObjects
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideDomainObjects')]
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_convert_a_domain_object_to_a_storage_object(EntityInterface $domainObject, StorageDtoInterface $storageObject)
     {
         $testItem = DomainToStorageConverter::create(FileStorageFactory::create());
@@ -81,15 +75,15 @@ class DomainToStorageConverterTest extends TestCase
         );
     }
 
-    public function provideDomainObjects(): Generator
+    public static function provideDomainObjects(): Generator
     {
-        yield 'object with composite' => [$this->createUserForDomainObject(), $this->createUserForStorage()];
-        yield 'object with one to many' => [$this->createOrderForDomainObject(), $this->createOrderForStorage()];
-        yield 'polymorphic object' => [$this->createElephantForDomainObject(), $this->createElephantForStorage()];
-        yield 'file storage' => [$this->createFileStorageForDomainObject(), $this->createFileStorageForStorage()];
+        yield 'object with composite' => [self::createUserForDomainObject(), self::createUserForStorage()];
+        yield 'object with one to many' => [self::createOrderForDomainObject(), self::createOrderForStorage()];
+        yield 'polymorphic object' => [self::createElephantForDomainObject(), self::createElephantForStorage()];
+        yield 'file storage' => [self::createFileStorageForDomainObject(), self::createFileStorageForStorage()];
     }
 
-    private function createFileStorageForDomainObject(): ImageFile
+    private static function createFileStorageForDomainObject(): ImageFile
     {
         $file = StoredFile::createFromString('<svg></svg>', 'image/svg', 'example.svg')
             ->markBeingStored(FileStorageFactory::create(), 'image/svg|example.svg|PHN2Zz48L3N2Zz4=');
@@ -104,7 +98,7 @@ class DomainToStorageConverterTest extends TestCase
         );
     }
 
-    private function createFileStorageForStorage()
+    private static function createFileStorageForStorage()
     {
         return new FileStorage(
             '550e8400-e29b-41d4-a716-446655440001',
@@ -123,7 +117,7 @@ class DomainToStorageConverterTest extends TestCase
         );
     }
 
-    private function createElephantForStorage(): AnimalStorage
+    private static function createElephantForStorage(): AnimalStorage
     {
         return new AnimalStorage(
             discriminatorMapping: ['animalType' => 'elephant'],
@@ -133,14 +127,14 @@ class DomainToStorageConverterTest extends TestCase
         );
     }
 
-    private function createElephantForDomainObject(): Animal
+    private static function createElephantForDomainObject(): Animal
     {
         $res = new Elephant(AnimalIdentifier::fromNative('550e8400-e29b-41d4-a716-446655440000'));
         $res->starving = true;
         return $res;
     }
 
-    private function createOrderForStorage(): OrderStorage
+    private static function createOrderForStorage(): OrderStorage
     {
         $res = new OrderStorage(
             '550e8400-e29b-41d4-a716-446655440000',
@@ -158,7 +152,7 @@ class DomainToStorageConverterTest extends TestCase
         return $res;
     }
 
-    private function createOrderForDomainObject(): Order
+    private static function createOrderForDomainObject(): Order
     {
         return new Order(
             OrderIdentifier::fromNative('550e8400-e29b-41d4-a716-446655440000'),
@@ -169,7 +163,7 @@ class DomainToStorageConverterTest extends TestCase
         );
     }
 
-    private function createUserForStorage(): UserWithAddressStorage
+    private static function createUserForStorage(): UserWithAddressStorage
     {
         return new UserWithAddressStorage(
             id: '550e8400-e29b-41d4-a716-446655440000',
@@ -184,7 +178,7 @@ class DomainToStorageConverterTest extends TestCase
         );
     }
 
-    private function createUserForDomainObject(): UserWithAddress
+    private static function createUserForDomainObject(): UserWithAddress
     {
         return new UserWithAddress(
             new AddressWithZipcodeCheck(
