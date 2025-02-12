@@ -22,10 +22,11 @@ class AccessControlListAttributeConverter implements PropertyConverterInterface
      * @param class-string<T> $className
      * @return ReflectionClass<T>
      */
-    private function toReflClass(string $className): ReflectionClass
+    private function toReflClass(string $className, mixed $contextStorageObject): ReflectionClass
     {
-        if (str_starts_with($className, 'apie_')) {
-            return new ReflectionClass('Generated\\ApieEntities\\' . $className);
+        if (str_starts_with($className, 'apie_') && is_object($contextStorageObject)) {
+            $refl = new ReflectionClass($contextStorageObject);
+            return new ReflectionClass($refl->getNamespaceName() . '\\' . $className);
         }
         return new ReflectionClass($className);
     }
@@ -47,7 +48,7 @@ class AccessControlListAttributeConverter implements PropertyConverterInterface
             }
             foreach ($domainPropertyValue as $arrayKey => $arrayValue) {
                 $arrayContext = $context->withArrayKey($arrayKey);
-                $storageClassRefl = $this->toReflClass($oneToManyAttribute->newInstance()->storageClass);
+                $storageClassRefl = $this->toReflClass($oneToManyAttribute->newInstance()->storageClass, $context->storageObject);
                 if (is_object($arrayValue) && in_array(StorageDtoInterface::class, $storageClassRefl->getInterfaceNames())) {
                     if (isset($storageProperties[$arrayKey]) && $storageProperties[$arrayKey] instanceof StorageDtoInterface) {
                         $arrayContext->domainToStorageConverter->injectExistingStorageObject(
