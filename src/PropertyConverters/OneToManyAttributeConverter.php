@@ -8,6 +8,8 @@ use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;
 use Apie\StorageMetadataBuilder\Interfaces\MixedStorageInterface;
 use Apie\TypeConverter\ReflectionTypeFactory;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
 use ReflectionClass;
 use Throwable;
 
@@ -65,9 +67,10 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
             $domainProperty = $oneToManyAttribute->newInstance()->getReflectionProperty($context->domainClass, $context->domainObject);
             if ($domainProperty) {
                 $domainPropertyValue = Utils::toArray($domainProperty->getValue($context->domainObject));
-                $storageProperties = $context->storageProperty->isInitialized($context->storageObject)
-                    ? $context->storageProperty->getValue($context->storageObject)
-                    : [];
+                $storageShouldBeReplaced = !$context->storageProperty->isInitialized($context->storageObject);
+                $storageProperties = $storageShouldBeReplaced
+                    ? []
+                    : $context->storageProperty->getValue($context->storageObject);
                 $keysToRemove = array_diff(
                     array_keys(Utils::toArray($storageProperties)),
                     array_keys($domainPropertyValue),
@@ -78,18 +81,20 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
                         // this is an edge case where we have some item list that can not unset values
                         if (isset($storageProperties[$keyToRemove])) {
                             $storageProperties = $context->dynamicCast([], $context->storageProperty->getType());
+                            $storageShouldBeReplaced = true;
                             break;
                         }
                     }
                 } catch (Throwable) {
                     // another edge case where an array object class throws an exception.
                     $storageProperties = $context->dynamicCast([], $context->storageProperty->getType());
+                    $storageShouldBeReplaced = true;
                 }
                 foreach ($domainPropertyValue as $arrayKey => $arrayValue) {
                     $arrayContext = $context->withArrayKey($arrayKey);
                     $storageClassRefl = $this->toReflClass($oneToManyAttribute->newInstance()->storageClass, $context->storageObject);
                     if (is_object($arrayValue) && in_array(StorageDtoInterface::class, $storageClassRefl->getInterfaceNames())) {
-                        if (isset($storageProperties[$arrayKey]) && $storageProperties[$arrayKey] instanceof StorageDtoInterface) {
+                        if (isset($storageProperties[$arrayKey]) && $storageProperties[$arrayKey] instanceof StorageDtoInterface && !$storageShouldBeReplaced) {
                             $arrayContext->domainToStorageConverter->injectExistingStorageObject(
                                 $arrayValue,
                                 $storageProperties[$arrayKey],
@@ -103,6 +108,15 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
                             );
                         }
                     } else {
+                        //  if we do not do this hack we get cloned objects.
+                        if ($storageProperties instanceof PersistentCollection) {
+                            $storageProperties = new ArrayCollection(
+                                $storageProperties
+                                    ->map(function ($t) { return clone $t; })
+                                    ->toArray()
+                            );
+                            $storageShouldBeReplaced = true;
+                        }
                         $storageProperties[$arrayKey] = $storageClassRefl->newInstance(Utils::toString($arrayValue));
                         // @phpstan-ignore-next-line
                         $storageProperties[$arrayKey]->listOrder = $arrayKey;
@@ -110,7 +124,7 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
                         $storageProperties[$arrayKey]->parent = $context->storageObject;
                     }
                 }
-                if (!$context->storageProperty->isInitialized($context->storageObject)) {
+                if ($storageShouldBeReplaced) {
                     $context->storageProperty->setValue($context->storageObject, $context->dynamicCast($storageProperties, $context->storageProperty->getType()));
                 }
             }
