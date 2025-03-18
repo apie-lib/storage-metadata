@@ -20,7 +20,7 @@ class OrderLineStorage implements StorageDtoInterface
 
     public function __construct(
         #[PropertyAttribute('id')]
-        public string $apieId,
+        public ?string $apieId,
         #[OrderAttribute]
         public int $order
     ) {

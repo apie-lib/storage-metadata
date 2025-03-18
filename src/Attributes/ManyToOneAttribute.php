@@ -7,15 +7,10 @@ use ReflectionException;
 use ReflectionProperty;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
-class PropertyAttribute
+class ManyToOneAttribute
 {
-    /**
-     * @param class-string<object>|null $declaredClass
-     */
     public function __construct(
-        public readonly string $propertyName,
-        public readonly ?string $declaredClass = null,
-        public readonly bool $allowLargeStrings = false
+        private string $propertyName
     ) {
     }
 
@@ -26,7 +21,7 @@ class PropertyAttribute
      */
     public function getReflectionProperty(ReflectionClass $targetClass, object $instance): ?ReflectionProperty
     {
-        $property = ($this->declaredClass ? new ReflectionClass($this->declaredClass) : $targetClass)->getProperty($this->propertyName);
+        $property = $targetClass->getProperty($this->propertyName);
         try {
             $property->isInitialized($instance);
             return $property;

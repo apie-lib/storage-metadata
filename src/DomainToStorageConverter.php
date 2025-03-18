@@ -1,19 +1,52 @@
 <?php
 namespace Apie\StorageMetadata;
 
+use Apie\Core\FileStorage\ChainedFileStorage;
+use Apie\Core\Indexing\Indexer;
+use Apie\Core\TypeConverters\ArrayToDoctrineCollection;
+use Apie\Core\TypeConverters\DoctrineCollectionToArray;
 use Apie\StorageMetadata\ClassInstantiators\ChainedClassInstantiator;
 use Apie\StorageMetadata\ClassInstantiators\FromReflection;
+use Apie\StorageMetadata\ClassInstantiators\FromStorage;
+use Apie\StorageMetadata\ClassInstantiators\FromStoredFile;
+use Apie\StorageMetadata\Converters\ApieListToArray;
 use Apie\StorageMetadata\Converters\ArrayToItemHashmap;
 use Apie\StorageMetadata\Converters\ArrayToItemList;
+use Apie\StorageMetadata\Converters\ArrayToItemSet;
+use Apie\StorageMetadata\Converters\AutoIncrementTableToInt;
+use Apie\StorageMetadata\Converters\AutoIncrementTableToValueObject;
+use Apie\StorageMetadata\Converters\DateTimeToString;
+use Apie\StorageMetadata\Converters\EnumToString;
+use Apie\StorageMetadata\Converters\IntToAutoIncrementTable;
+use Apie\StorageMetadata\Converters\IntToValueObject;
+use Apie\StorageMetadata\Converters\MixedStorageToObject;
+use Apie\StorageMetadata\Converters\MixedToMixedStorage;
+use Apie\StorageMetadata\Converters\StringToDateTime;
 use Apie\StorageMetadata\Converters\StringToEnum;
+use Apie\StorageMetadata\Converters\StringToSearchIndex;
+use Apie\StorageMetadata\Converters\StringToUploadedFileInterface;
 use Apie\StorageMetadata\Converters\StringToValueObject;
+use Apie\StorageMetadata\Converters\UploadedFileInterfaceToString;
+use Apie\StorageMetadata\Converters\ValueObjectToAutoIncrementTable;
+use Apie\StorageMetadata\Converters\ValueObjectToFloat;
+use Apie\StorageMetadata\Converters\ValueObjectToInt;
+use Apie\StorageMetadata\Converters\ValueObjectToString;
 use Apie\StorageMetadata\Interfaces\ClassInstantiatorInterface;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;
+use Apie\StorageMetadata\PropertyConverters\AccessControlListAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\DefaultValueAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\DiscriminatorMappingAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\GetSearchIndexAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\ManyToOneAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\MethodAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\OneToManyAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\OneToOneAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\OrderAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\ParentAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\PropertyAttributeConverter;
+use Apie\StorageMetadata\PropertyConverters\StorageMappingAttributeConverter;
 use Apie\TypeConverter\Converters\ObjectToObjectConverter;
 use Apie\TypeConverter\DefaultConvertersFactory;
 use Apie\TypeConverter\TypeConverter;
@@ -27,9 +60,43 @@ class DomainToStorageConverter
 
     public function __construct(
         private readonly ClassInstantiatorInterface $classInstantiator,
+        private readonly ChainedFileStorage $fileStorage,
         PropertyConverterInterface... $propertyConverters
     ) {
         $this->propertyConverters = $propertyConverters;
+    }
+
+    private function createTypeConverter(): TypeConverter
+    {
+        return new TypeConverter(
+            new ObjectToObjectConverter(),
+            ...DefaultConvertersFactory::create(
+                new StringToUploadedFileInterface($this->fileStorage),
+                new UploadedFileInterfaceToString($this->fileStorage),
+                new ArrayToDoctrineCollection(),
+                new StringToSearchIndex(),
+                new DoctrineCollectionToArray(),
+                new ApieListToArray(),
+                new AutoIncrementTableToInt(),
+                new AutoIncrementTableToValueObject(),
+                new IntToAutoIncrementTable(),
+                new ValueObjectToAutoIncrementTable(),
+                new ValueObjectToInt(),
+                new IntToValueObject(),
+                new ValueObjectToFloat(),
+                new MixedStorageToObject(),
+                new MixedToMixedStorage(),
+                new ValueObjectToString(),
+                new EnumToString(),
+                new StringToDateTime(),
+                new DateTimeToString(),
+                new StringToValueObject(),
+                new StringToEnum(),
+                new ArrayToItemHashmap(),
+                new ArrayToItemList(),
+                new ArrayToItemSet(),
+            )
+        );
     }
 
     /**
@@ -39,24 +106,19 @@ class DomainToStorageConverter
      */
     public function injectExistingDomainObject(
         object $domainObject,
-        StorageDtoInterface $storageObject
+        StorageDtoInterface $storageObject,
+        ?DomainToStorageContext $context = null
     ): object {
         $domainClass = $storageObject::getClassReference();
-        $typeConverter = new TypeConverter(
-            new ObjectToObjectConverter(),
-            ...DefaultConvertersFactory::create(
-                new StringToValueObject(),
-                new StringToEnum(),
-                new ArrayToItemHashmap(),
-                new ArrayToItemList(),
-            )
-        );
-        $context = new DomainToStorageContext(
+        $typeConverter = $this->createTypeConverter();
+        $context = DomainToStorageContext::createFromContext(
             $this,
             $typeConverter,
             $storageObject,
             $domainObject,
-            $domainClass
+            $this->fileStorage,
+            $domainClass,
+            $context
         );
         $ptr = new ReflectionClass($storageObject);
         $filters = null;
@@ -78,25 +140,90 @@ class DomainToStorageConverter
         return $domainObject;
     }
 
-    public function createDomainObject(StorageDtoInterface $storageObject): object
+    public function createDomainObject(StorageDtoInterface $storageObject, ?DomainToStorageContext $context = null): object
     {
         $domainClass = $storageObject::getClassReference();
         
         return $this->injectExistingDomainObject(
             $this->classInstantiator->create($domainClass, $storageObject),
-            $storageObject
+            $storageObject,
+            $context
         );
     }
 
-    public static function create(): self
+    /**
+     * @template T of StorageDtoInterface
+     * @param ReflectionClass<T> $targetClass
+     * @return T
+     */
+    public function createStorageObject(
+        object $input,
+        ReflectionClass $targetClass,
+        ?DomainToStorageContext $context = null
+    ): StorageDtoInterface {
+        return $this->injectExistingStorageObject(
+            $input,
+            $this->classInstantiator->create($targetClass),
+            $context
+        );
+    }
+
+    public function injectExistingStorageObject(
+        object $domainObject,
+        StorageDtoInterface $storageObject,
+        ?DomainToStorageContext $context = null
+    ): StorageDtoInterface {
+        $domainClass = $storageObject::getClassReference();
+        $filters = null;
+        $ptr = new ReflectionClass($storageObject);
+        $typeConverter = $this->createTypeConverter();
+        $context = DomainToStorageContext::createFromContext(
+            $this,
+            $typeConverter,
+            $storageObject,
+            $domainObject,
+            $this->fileStorage,
+            $domainClass,
+            $context
+        );
+        while ($ptr) {
+            foreach ($ptr->getProperties($filters) as $storageProperty) {
+                if ($storageProperty->isStatic()) {
+                    continue;
+                }
+                $propertyContext = $context->withStorageProperty($storageProperty);
+                foreach ($this->propertyConverters as $propertyConverter) {
+                    $propertyConverter->applyToStorage($propertyContext);
+                }
+            }
+            $ptr = $ptr->getParentClass();
+            // parent classes only add private properties
+            $filters = ReflectionProperty::IS_PRIVATE;
+        }
+        return $storageObject;
+    }
+
+    public static function create(ChainedFileStorage $fileStorage, ?Indexer $indexer = null): self
     {
         return new self(
             new ChainedClassInstantiator(
+                new FromStoredFile(),
+                new FromStorage(),
                 new FromReflection(),
             ),
+            $fileStorage,
+            new DiscriminatorMappingAttributeConverter(),
+            new StorageMappingAttributeConverter(),
+            new ManyToOneAttributeConverter(),
             new OneToOneAttributeConverter(),
+            new AccessControlListAttributeConverter(),
             new OneToManyAttributeConverter(),
             new PropertyAttributeConverter(),
+            new GetSearchIndexAttributeConverter($indexer ?? Indexer::create()),
+            new MethodAttributeConverter(),
+            new OrderAttributeConverter(),
+            new ParentAttributeConverter(),
+            new DefaultValueAttributeConverter(),
         );
     }
 }

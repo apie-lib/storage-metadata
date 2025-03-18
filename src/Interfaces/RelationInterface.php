@@ -4,7 +4,7 @@ namespace Apie\StorageMetadata\Interfaces;
 use Apie\Core\Dto\DtoInterface;
 use ReflectionClass;
 
-interface StorageDtoInterface extends DtoInterface
+interface RelationInterface extends DtoInterface
 {
     /**
      * @return ReflectionClass<object>

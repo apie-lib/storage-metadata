@@ -9,4 +9,7 @@ interface PropertyConverterInterface extends DtoInterface
     public function applyToDomain(
         DomainToStorageContext $domainToStorageContext
     ): void;
+    public function applyToStorage(
+        DomainToStorageContext $domainToStorageContext
+    ): void;
 }

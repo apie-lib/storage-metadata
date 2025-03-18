@@ -15,7 +15,7 @@ class OneToManyAttribute
      * @param class-string<object>|null $declaredClass
      */
     public function __construct(
-        public readonly string $propertyName,
+        public readonly ?string $propertyName,
         public readonly string $storageClass,
         public readonly ?string $declaredClass = null
     ) {
@@ -28,7 +28,10 @@ class OneToManyAttribute
      */
     public function getReflectionProperty(ReflectionClass $targetClass, object $instance): ?ReflectionProperty
     {
-        $property = ($this->declaredClass ?? $targetClass)->getProperty($this->propertyName);
+        if ($this->propertyName === null) {
+            return null;
+        }
+        $property = ($this->declaredClass ? new ReflectionClass($this->declaredClass) : $targetClass)->getProperty($this->propertyName);
         try {
             $property->isInitialized($instance);
             return $property;

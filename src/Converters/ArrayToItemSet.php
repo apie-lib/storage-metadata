@@ -1,7 +1,7 @@
 <?php
 namespace Apie\StorageMetadata\Converters;
 
-use Apie\Core\Lists\ItemHashmap;
+use Apie\Core\Lists\ItemSet;
 use Apie\Core\TypeUtils;
 use Apie\Core\Utils\ConverterUtils;
 use Apie\Core\Utils\HashmapUtils;
@@ -11,14 +11,14 @@ use ReflectionType;
 
 /**
  * @template T
- * @implements ConverterInterface<array<string, T>, ItemHashmap<T>>
+ * @implements ConverterInterface<array<int, T>, ItemSet<T>>
  */
-class ArrayToItemHashmap implements ConverterInterface
+class ArrayToItemSet implements ConverterInterface
 {
     /**
-     * @param array<string, T> $input
+     * @param array<int, T> $input
      */
-    public function convert(array $input, ?ReflectionType $wantedType, ?TypeConverter $typeConverter = null): ItemHashmap
+    public function convert(array $input, ?ReflectionType $wantedType, ?TypeConverter $typeConverter = null): ItemSet
     {
         $class = ConverterUtils::toReflectionClass($wantedType);
         assert(null !== $class);

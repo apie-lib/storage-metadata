@@ -18,15 +18,15 @@ class AddressStorage implements StorageDtoInterface
     public UserWithAddressStorage $parent;
     public function __construct(
         #[PropertyAttribute('street')]
-        public string $apieStreet,
+        public ?string $apieStreet,
         #[PropertyAttribute('streetNumber')]
-        public string $apieStreetNumber,
+        public ?string $apieStreetNumber,
         #[PropertyAttribute('zipcode')]
-        public string $apieZipcode,
+        public ?string $apieZipcode,
         #[PropertyAttribute('city')]
-        public string $apieCity,
+        public ?string $apieCity,
         #[PropertyAttribute('manual')]
-        public bool $apieManual,
+        public ?bool $apieManual,
     ) {
     }
 }

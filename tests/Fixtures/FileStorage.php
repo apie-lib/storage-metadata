@@ -1,31 +1,29 @@
 <?php
 namespace Apie\Tests\StorageMetadata\Fixtures;
 
-use Apie\Fixtures\Entities\UserWithAddress;
+use Apie\Fixtures\Entities\ImageFile;
 use Apie\StorageMetadata\Attributes\GetMethodAttribute;
 use Apie\StorageMetadata\Attributes\OneToOneAttribute;
 use Apie\StorageMetadata\Attributes\PropertyAttribute;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use ReflectionClass;
-use SensitiveParameter;
 
-class UserWithAddressStorage implements StorageDtoInterface
+class FileStorage implements StorageDtoInterface
 {
     public static function getClassReference(): ReflectionClass
     {
-        return new ReflectionClass(UserWithAddress::class);
+        return new ReflectionClass(ImageFile::class);
     }
+
     public function __construct(
         #[GetMethodAttribute('getId')]
         private string $id,
         #[PropertyAttribute('id')]
         public ?string $apieId,
-        #[OneToOneAttribute('address')]
-        public AddressStorage $apieAddress,
-        #[PropertyAttribute('password')]
-        #[SensitiveParameter]
-        public ?string $apiePassword = null,
+        #[PropertyAttribute('alternativeText', allowLargeStrings: true)]
+        public ?string $apieAlternativeText,
+        #[OneToOneAttribute('file')]
+        public UploadedFileStorage $apieFile
     ) {
-        $this->apieAddress->parent = $this;
     }
 }
