@@ -17,7 +17,9 @@ class OneToManyAttribute
     public function __construct(
         public readonly ?string $propertyName,
         public readonly string $storageClass,
-        public readonly ?string $declaredClass = null
+        public readonly ?string $declaredClass = null,
+        public readonly ?string $nullableField = null,
+        public readonly ?string $mutableListField = null,
     ) {
     }
 
