@@ -119,7 +119,7 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
                         }
                         $storageProperties[$arrayKey] = $storageClassRefl->newInstance(Utils::toString($arrayValue));
                         // @phpstan-ignore-next-line
-                        $storageProperties[$arrayKey]->listOrder = $arrayKey;
+                        $storageProperties[$arrayKey]->listOrder = $context->dynamicCast($arrayKey, $storageClassRefl->getProperty('listOrder')->getType());
                         // @phpstan-ignore-next-line
                         $storageProperties[$arrayKey]->parent = $context->storageObject;
                     }
