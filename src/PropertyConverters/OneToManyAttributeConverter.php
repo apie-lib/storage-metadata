@@ -19,12 +19,21 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
         DomainToStorageContext $context
     ): void {
         foreach ($context->storageProperty->getAttributes(OneToManyAttribute::class) as $oneToManyAttribute) {
-            $domainProperty = $oneToManyAttribute->newInstance()->getReflectionProperty($context->domainClass, $context->domainObject);
+            $oneToManyInfo = $oneToManyAttribute->newInstance();
+            $domainProperty = $oneToManyInfo->getReflectionProperty($context->domainClass, $context->domainObject);
             if ($domainProperty) {
-                $storagePropertyValue = Utils::toArray($context->getStoragePropertyValue());
+                $storagePropertyValue = $context->getStoragePropertyValue();
+                if ($oneToManyInfo->nullableField) {
+                    $fieldName = $oneToManyInfo->nullableField;
+                    if ($context->storageObject->{$fieldName}) {
+                        $domainProperty->setValue($context->domainObject, null);
+                        return;
+                    }
+                }
+                $storagePropertyValue = Utils::toArray($storagePropertyValue);
                 $domainPropertyType = $domainProperty->getType();
                 $domainProperties = $domainProperty->isInitialized($context->domainObject)
-                    ? Utils::toArray($domainProperty->getValue($context->domainObject))
+                    ? Utils::toArray($domainProperty->getValue($context->domainObject) ?? [])
                     : [];
                 foreach ($storagePropertyValue as $arrayKey => $arrayValue) {
                     if ($arrayValue instanceof MixedStorageInterface) {
@@ -64,9 +73,15 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
         DomainToStorageContext $context
     ): void {
         foreach ($context->storageProperty->getAttributes(OneToManyAttribute::class) as $oneToManyAttribute) {
-            $domainProperty = $oneToManyAttribute->newInstance()->getReflectionProperty($context->domainClass, $context->domainObject);
+            $oneToManyInfo = $oneToManyAttribute->newInstance();
+            $domainProperty = $oneToManyInfo->getReflectionProperty($context->domainClass, $context->domainObject);
             if ($domainProperty) {
-                $domainPropertyValue = Utils::toArray($domainProperty->getValue($context->domainObject));
+                $domainPropertyValue = $domainProperty->getValue($context->domainObject);
+                if ($oneToManyInfo->nullableField) {
+                    $fieldName = $oneToManyInfo->nullableField;
+                    $context->storageObject->{$fieldName} = $domainPropertyValue === null;
+                }
+                $domainPropertyValue = Utils::toArray($domainPropertyValue ?? []);
                 $storageShouldBeReplaced = !$context->storageProperty->isInitialized($context->storageObject);
                 $storageProperties = $storageShouldBeReplaced
                     ? []
@@ -78,7 +93,7 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
                 try {
                     foreach ($keysToRemove as $keyToRemove) {
                         unset($storageProperties[$keyToRemove]);
-                        // this is an edge case where we have some item list that can not unset values
+                        // this is an edge case where we have some immutable item list object.
                         if (isset($storageProperties[$keyToRemove])) {
                             $storageProperties = $context->dynamicCast([], $context->storageProperty->getType());
                             $storageShouldBeReplaced = true;
