@@ -13,6 +13,7 @@ use Apie\Fixtures\Enums\OrderStatus;
 use Apie\Fixtures\Identifiers\UserAutoincrementIdentifier;
 use Apie\StorageMetadata\Interfaces\AutoIncrementTableInterface;
 use Apie\StorageMetadata\TypeConverterFactory;
+use Apie\StorageMetadataBuilder\Interfaces\MixedStorageInterface;
 use Apie\Tests\StorageMetadata\Fixtures\MockSearchIndex;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -53,7 +54,7 @@ class TypeConverterFactoryTest extends TestCase
         yield 'value object to string' => [
             'user-123',
             NonEmptyString::fromNative('user-123'),
-            'string',  
+            'string',
         ];
 
         yield 'int to value object' => [
@@ -143,6 +144,21 @@ class TypeConverterFactoryTest extends TestCase
             'example.txt||ZmlsZSBjb250ZW50cw==',
             StoredFile::class
         ];
+
+        $object = (object)['a' => 'b'];
+        if (class_exists(MixedStorageInterface::class) && class_exists(Fixtures\MockMixedStorage::class)) {
+            yield 'object to mixed storage' => [
+                new Fixtures\MockMixedStorage($object),
+                $object,
+                Fixtures\MockMixedStorage::class
+            ];
+
+            yield 'mixed storage to object' => [
+                $object,
+                new Fixtures\MockMixedStorage($object),
+                \stdClass::class
+            ];
+        }
 
         // conversions to the same type throw an error in the current definition and are handled differently.
         /*yield 'string to string' => ['hello', 'hello', 'string'];
