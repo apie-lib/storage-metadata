@@ -2,22 +2,29 @@
 namespace Apie\StorageMetadata\PropertyConverters;
 
 use Apie\Core\Attributes\Optional;
-use Apie\StorageMetadata\Attributes\GetMethodOrPropertyAttribute;
+use Apie\StorageMetadata\Attributes\DecimalPropertyAttribute;
 use Apie\StorageMetadata\Attributes\PropertyAttribute;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;
 
 class PropertyAttributeConverter implements PropertyConverterInterface
 {
+    /**
+     * @return array<\ReflectionAttribute<PropertyAttribute>>
+     */
+    private function getPropertyAttributes(DomainToStorageContext $context): array
+    {
+        $storageProperty = $context->storageProperty;
+        return [
+            ...$storageProperty->getAttributes(PropertyAttribute::class),
+            ...$storageProperty->getAttributes(DecimalPropertyAttribute::class),
+        ];
+    }
+
     public function applyToDomain(
         DomainToStorageContext $context
     ): void {
-        $storageProperty = $context->storageProperty;
-        $propertyAttributes = [
-            ...$storageProperty->getAttributes(PropertyAttribute::class),
-            ...$storageProperty->getAttributes(GetMethodOrPropertyAttribute::class),
-        ];
-        foreach ($propertyAttributes as $propertyAttribute) {
+        foreach ($this->getPropertyAttributes($context) as $propertyAttribute) {
             $domainProperty = $propertyAttribute->newInstance()->getReflectionProperty($context->domainClass, $context->domainObject);
             if ($domainProperty && (!$domainProperty->isInitialized($context->domainObject) || !$domainProperty->isReadOnly())) {
                 $domainPropertyType = $domainProperty->getType();
@@ -35,7 +42,7 @@ class PropertyAttributeConverter implements PropertyConverterInterface
     ): void {
         $storageProperty = $context->storageProperty;
 
-        foreach ($storageProperty->getAttributes(PropertyAttribute::class) as $propertyAttribute) {
+        foreach ($this->getPropertyAttributes($context) as $propertyAttribute) {
             $domainProperty = $propertyAttribute->newInstance()->getReflectionProperty($context->domainClass, $context->domainObject);
             if ($domainProperty) {
                 $storagePropertyType = $storageProperty->getType();

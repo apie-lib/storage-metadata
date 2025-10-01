@@ -2,6 +2,7 @@
 namespace Apie\Tests\StorageMetadata\Fixtures;
 
 use Apie\Fixtures\Entities\OrderLine;
+use Apie\StorageMetadata\Attributes\DecimalPropertyAttribute;
 use Apie\StorageMetadata\Attributes\OrderAttribute;
 use Apie\StorageMetadata\Attributes\ParentAttribute;
 use Apie\StorageMetadata\Attributes\PropertyAttribute;
@@ -21,6 +22,8 @@ class OrderLineStorage implements StorageDtoInterface
     public function __construct(
         #[PropertyAttribute('id')]
         public ?string $apieId,
+        #[DecimalPropertyAttribute('price')]
+        public ?string $apiePrice,
         #[OrderAttribute]
         public int $order
     ) {
