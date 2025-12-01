@@ -10,6 +10,7 @@ use Apie\StorageMetadata\Converters\ArrayToItemList;
 use Apie\StorageMetadata\Converters\ArrayToItemSet;
 use Apie\StorageMetadata\Converters\AutoIncrementTableToInt;
 use Apie\StorageMetadata\Converters\AutoIncrementTableToValueObject;
+use Apie\StorageMetadata\Converters\DateTimeToDateTimeImmutable;
 use Apie\StorageMetadata\Converters\DateTimeToString;
 use Apie\StorageMetadata\Converters\IntToAutoIncrementTable;
 use Apie\StorageMetadata\Converters\IntToValueObject;
@@ -60,6 +61,7 @@ final class TypeConverterFactory
                 new MixedToMixedStorage(),
                 new ValueObjectToString(),
                 new StringToDateTime(),
+                new DateTimeToDateTimeImmutable(),
                 new DateTimeToString(),
                 new StringToValueObject(),
                 new StringToEnum(),
