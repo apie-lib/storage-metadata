@@ -127,7 +127,9 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
                         if ($storageProperties instanceof PersistentCollection) {
                             $storageProperties = new ArrayCollection(
                                 $storageProperties
-                                    ->map(function ($t) { return clone $t; })
+                                    ->map(function ($t) {
+                                        return clone $t;
+                                    })
                                     ->toArray()
                             );
                             $storageShouldBeReplaced = true;
