@@ -2,6 +2,7 @@
 namespace Apie\StorageMetadata;
 
 use Apie\Core\FileStorage\ChainedFileStorage;
+use Apie\Core\FileStorage\StoredFile;
 use Apie\Core\Indexing\Indexer;
 use Apie\StorageMetadata\ClassInstantiators\ChainedClassInstantiator;
 use Apie\StorageMetadata\ClassInstantiators\FromReflection;
@@ -24,6 +25,7 @@ use Apie\StorageMetadata\PropertyConverters\ParentAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\PropertyAttributeConverter;
 use Apie\StorageMetadata\PropertyConverters\StorageMappingAttributeConverter;
 use Apie\TypeConverter\TypeConverter;
+use Psr\Http\Message\UploadedFileInterface;
 use ReflectionClass;
 use ReflectionProperty;
 
@@ -114,6 +116,30 @@ class DomainToStorageConverter
         );
     }
 
+    /**
+     * @template T of object
+     * @param T $domainObject
+     * @param ReflectionClass<T> $reflectionClass
+     */
+
+    private function fixFileUploads(object $domainObject, ReflectionClass $reflectionClass): void
+    {
+        foreach ($reflectionClass->getProperties() as $property) {
+            if ($property->isStatic()) {
+                continue;
+            }
+            $value = $property->getValue($domainObject);
+            if ($value instanceof UploadedFileInterface && !($value instanceof StoredFile)) {
+                $storedFile = StoredFile::createFromUploadedFile($value);
+                $property->setValue($domainObject, $storedFile);
+            }
+        }
+        $parentClass = $reflectionClass->getParentClass();
+        if ($parentClass) {
+            $this->fixFileUploads($domainObject, $parentClass);    
+        }
+    }
+
     public function injectExistingStorageObject(
         object $domainObject,
         StorageDtoInterface $storageObject,
@@ -132,6 +158,7 @@ class DomainToStorageConverter
             $domainClass,
             $context
         );
+        $this->fixFileUploads($domainObject, new ReflectionClass($domainObject));
         while ($ptr) {
             foreach ($ptr->getProperties($filters) as $storageProperty) {
                 if ($storageProperty->isStatic()) {
