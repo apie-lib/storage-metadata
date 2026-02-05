@@ -136,7 +136,7 @@ class DomainToStorageConverter
         }
         $parentClass = $reflectionClass->getParentClass();
         if ($parentClass) {
-            $this->fixFileUploads($domainObject, $parentClass);    
+            $this->fixFileUploads($domainObject, $parentClass);
         }
     }
 
