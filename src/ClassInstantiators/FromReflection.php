@@ -4,6 +4,7 @@ namespace Apie\StorageMetadata\ClassInstantiators;
 use Apie\StorageMetadata\Interfaces\ClassInstantiatorInterface;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use ReflectionClass;
+use WeakMap;
 
 final class FromReflection implements ClassInstantiatorInterface
 {
@@ -14,6 +15,9 @@ final class FromReflection implements ClassInstantiatorInterface
 
     public function create(ReflectionClass $class, ?StorageDtoInterface $storageObject = null): object
     {
+        if ($class->name === WeakMap::class) {
+            return new WeakMap();
+        }
         return $class->newInstanceWithoutConstructor();
     }
 }
