@@ -5,6 +5,7 @@ use Apie\Core\FileStorage\ChainedFileStorage;
 use Apie\Core\FileStorage\StoredFile;
 use Apie\Core\Indexing\Indexer;
 use Apie\StorageMetadata\ClassInstantiators\ChainedClassInstantiator;
+use Apie\StorageMetadata\ClassInstantiators\FromMixedStorage;
 use Apie\StorageMetadata\ClassInstantiators\FromReflection;
 use Apie\StorageMetadata\ClassInstantiators\FromStorage;
 use Apie\StorageMetadata\ClassInstantiators\FromStoredFile;
@@ -183,6 +184,7 @@ class DomainToStorageConverter
                 new FromStoredFile(),
                 new FromStorage(),
                 new FromReflection(),
+                new FromMixedStorage(),
             ),
             $fileStorage,
             new DiscriminatorMappingAttributeConverter(),
