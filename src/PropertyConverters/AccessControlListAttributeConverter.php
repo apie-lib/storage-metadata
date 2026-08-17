@@ -26,6 +26,7 @@ class AccessControlListAttributeConverter implements PropertyConverterInterface
     {
         if (str_starts_with($className, 'apie_') && is_object($contextStorageObject)) {
             $refl = new ReflectionClass($contextStorageObject);
+            // @phpstan-ignore-next-line return.type
             return new ReflectionClass($refl->getNamespaceName() . '\\' . $className);
         }
         return new ReflectionClass($className);

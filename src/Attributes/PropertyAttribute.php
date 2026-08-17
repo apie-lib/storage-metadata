@@ -10,7 +10,7 @@ use ReflectionProperty;
 class PropertyAttribute
 {
     /**
-     * @param class-string<object>|null $declaredClass
+     * @param class-string<covariant object>|null $declaredClass
      */
     public function __construct(
         public readonly string $propertyName,
@@ -21,7 +21,7 @@ class PropertyAttribute
 
     /**
      * @template T of object
-     * @param ReflectionClass<T> $targetClass
+     * @param ReflectionClass<covariant T> $targetClass
      * @param T $instance
      */
     public function getReflectionProperty(ReflectionClass $targetClass, object $instance): ?ReflectionProperty

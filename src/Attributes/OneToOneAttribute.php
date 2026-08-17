@@ -20,7 +20,7 @@ class OneToOneAttribute
 
     /**
      * @template T of object
-     * @param ReflectionClass<T> $targetClass
+     * @param ReflectionClass<covariant T> $targetClass
      * @param T $instance
      */
     public function getReflectionProperty(ReflectionClass $targetClass, object $instance): ?ReflectionProperty

@@ -6,7 +6,7 @@ use ReflectionClass;
 interface StorageClassInstantiatorInterface extends StorageDtoInterface
 {
     /**
-     * @param ReflectionClass<object> $class
+     * @param ReflectionClass<covariant object> $class
      */
     public function createDomainObject(ReflectionClass $class): object;
 }

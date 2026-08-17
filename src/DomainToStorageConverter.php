@@ -102,7 +102,7 @@ class DomainToStorageConverter
 
     /**
      * @template T of StorageDtoInterface
-     * @param ReflectionClass<T> $targetClass
+     * @param ReflectionClass<covariant T> $targetClass
      * @return T
      */
     public function createStorageObject(

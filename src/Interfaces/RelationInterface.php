@@ -7,7 +7,7 @@ use ReflectionClass;
 interface RelationInterface extends DtoInterface
 {
     /**
-     * @return ReflectionClass<object>
+     * @return ReflectionClass<covariant object>
      */
     public static function getClassReference(): ReflectionClass;
 }

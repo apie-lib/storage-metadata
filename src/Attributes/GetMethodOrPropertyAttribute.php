@@ -23,7 +23,7 @@ class GetMethodOrPropertyAttribute extends PropertyAttribute
 
     /**
      * @template T of object
-     * @param ReflectionClass<T> $targetClass
+     * @param ReflectionClass<covariant T> $targetClass
      * @param T $instance
      */
     public function getReflectionMethod(ReflectionClass $targetClass, object $instance): ?ReflectionMethod
@@ -34,7 +34,7 @@ class GetMethodOrPropertyAttribute extends PropertyAttribute
 
     /**
      * @template T of object
-     * @param ReflectionClass<T> $targetClass
+     * @param ReflectionClass<covariant T> $targetClass
      * @param T $instance
      */
     public function getReflectionProperty(

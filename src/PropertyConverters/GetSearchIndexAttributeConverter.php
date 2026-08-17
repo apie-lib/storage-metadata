@@ -32,6 +32,7 @@ class GetSearchIndexAttributeConverter implements PropertyConverterInterface
             if ($arrayValueType && str_starts_with($arrayValueType, 'apie_')) {
                 $arrayValueType = (new ReflectionClass($context->storageObject))->getNamespaceName() . '\\' . $arrayValueType;
             }
+            // @phpstan-ignore-next-line argument.type
             $domainPropertyValue = $propertyAttribute->newInstance()->getValue($context->domainClass, $context->domainObject);
             $storagePropertyType = $storageProperty->getType();
             if ($domainPropertyValue === null) {
