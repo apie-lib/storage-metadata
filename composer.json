@@ -20,13 +20,13 @@
     }
   },
   "require": {
-    "php": ">=8.3",
+    "php": ">=8.4",
     "apie/core": "self.version"
   },
   "require-dev": {
     "apie/fixtures": "self.version",
     "phpunit/phpunit": "^11.5.2",
-    "phpspec/prophecy-phpunit": "^2.2"
+    "phpspec/prophecy-phpunit": "^2.5"
   },
   "minimum-stability": "dev",
   "prefer-stable": true

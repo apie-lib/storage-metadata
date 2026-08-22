@@ -10,14 +10,18 @@ use Apie\StorageMetadata\Converters\ArrayToItemList;
 use Apie\StorageMetadata\Converters\ArrayToItemSet;
 use Apie\StorageMetadata\Converters\AutoIncrementTableToInt;
 use Apie\StorageMetadata\Converters\AutoIncrementTableToValueObject;
+use Apie\StorageMetadata\Converters\BcMathToString;
 use Apie\StorageMetadata\Converters\DateTimeToDateTimeImmutable;
 use Apie\StorageMetadata\Converters\DateTimeToString;
+use Apie\StorageMetadata\Converters\GMPToString;
 use Apie\StorageMetadata\Converters\IntToAutoIncrementTable;
 use Apie\StorageMetadata\Converters\IntToValueObject;
 use Apie\StorageMetadata\Converters\MixedStorageToObject;
 use Apie\StorageMetadata\Converters\MixedToMixedStorage;
+use Apie\StorageMetadata\Converters\StringToBcMath;
 use Apie\StorageMetadata\Converters\StringToDateTime;
 use Apie\StorageMetadata\Converters\StringToEnum;
+use Apie\StorageMetadata\Converters\StringToGMP;
 use Apie\StorageMetadata\Converters\StringToSearchIndex;
 use Apie\StorageMetadata\Converters\StringToUploadedFileInterface;
 use Apie\StorageMetadata\Converters\StringToValueObject;
@@ -65,6 +69,10 @@ final class TypeConverterFactory
                 new DateTimeToString(),
                 new StringToValueObject(),
                 new StringToEnum(),
+                new StringToGMP(),
+                new GMPToString(),
+                new StringToBcMath(),
+                new BcMathToString(),
                 new ArrayToItemHashmap(),
                 new ArrayToItemList(),
                 new ArrayToItemSet(),
