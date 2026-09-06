@@ -3,6 +3,7 @@ namespace Apie\StorageMetadata\PropertyConverters;
 
 use Apie\Core\ValueObjects\Utils;
 use Apie\StorageMetadata\Attributes\OneToManyAttribute;
+use Apie\StorageMetadata\DomainToStorageConverter;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;
@@ -50,7 +51,9 @@ class OneToManyAttributeConverter implements PropertyConverterInterface
                             : $context->dynamicCast($arrayValue, ReflectionTypeFactory::createReflectionType($oneToManyAttribute->newInstance()->declaredClass));
                     }
                 }
-                $domainProperty->setValue($context->domainObject, $context->dynamicCast($domainProperties, $domainPropertyType));
+                if (DomainToStorageConverter::isReallyWritable($context->domainObject, $domainProperty)) {
+                    $domainProperty->setValue($context->domainObject, $context->dynamicCast($domainProperties, $domainPropertyType));
+                }
             }
         }
     }

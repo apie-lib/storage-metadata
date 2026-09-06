@@ -201,4 +201,18 @@ class DomainToStorageConverter
             new DefaultValueAttributeConverter(),
         );
     }
+
+    /**
+     * Some native PHP classes claim a property not to be readonly, but throw an error
+     * when you do try to set it. This method is a workaround for that.
+     */
+    public static function isReallyWritable(
+        object $object,
+        ReflectionProperty $property,
+    ): bool {
+        if ($object instanceof \DatePeriod && in_array($property->getName(), ['start', 'end', 'interval', 'include_end_date', 'include_start_date', 'recurrences', 'current'])) {
+            return false;
+        }
+        return true;
+    }
 }

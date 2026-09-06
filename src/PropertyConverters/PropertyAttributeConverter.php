@@ -4,6 +4,7 @@ namespace Apie\StorageMetadata\PropertyConverters;
 use Apie\Core\Attributes\Optional;
 use Apie\StorageMetadata\Attributes\DecimalPropertyAttribute;
 use Apie\StorageMetadata\Attributes\PropertyAttribute;
+use Apie\StorageMetadata\DomainToStorageConverter;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;
 
@@ -32,7 +33,9 @@ class PropertyAttributeConverter implements PropertyConverterInterface
                 if (!$domainPropertyType->allowsNull() && $domainPropertyValue === null && $domainProperty->getAttributes(Optional::class)) {
                     continue;
                 }
-                $domainProperty->setValue($context->domainObject, $domainPropertyValue);
+                if (DomainToStorageConverter::isReallyWritable($context->domainObject, $domainProperty)) {
+                    $domainProperty->setValue($context->domainObject, $domainPropertyValue);
+                }
             }
         }
     }

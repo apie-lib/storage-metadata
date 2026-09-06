@@ -4,6 +4,7 @@ namespace Apie\StorageMetadata\PropertyConverters;
 use Apie\Core\Attributes\Optional;
 use Apie\Core\Utils\ConverterUtils;
 use Apie\StorageMetadata\Attributes\OneToOneAttribute;
+use Apie\StorageMetadata\DomainToStorageConverter;
 use Apie\StorageMetadata\Interfaces\PropertyConverterInterface;
 use Apie\StorageMetadata\Interfaces\StorageDtoInterface;
 use Apie\StorageMetadata\Mediators\DomainToStorageContext;
@@ -35,7 +36,9 @@ class OneToOneAttributeConverter implements PropertyConverterInterface
                 if (!$domainPropertyType->allowsNull() && $domainPropertyValue === null && $domainProperty->getAttributes(Optional::class)) {
                     continue;
                 }
-                $domainProperty->setValue($context->domainObject, $domainPropertyValue);
+                if (DomainToStorageConverter::isReallyWritable($context->domainObject, $domainProperty)) {
+                    $domainProperty->setValue($context->domainObject, $domainPropertyValue);
+                }
             }
         }
     }
