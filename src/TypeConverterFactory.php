@@ -19,12 +19,16 @@ use Apie\StorageMetadata\Converters\IntToAutoIncrementTable;
 use Apie\StorageMetadata\Converters\IntToValueObject;
 use Apie\StorageMetadata\Converters\MixedStorageToObject;
 use Apie\StorageMetadata\Converters\MixedToMixedStorage;
+use Apie\StorageMetadata\Converters\ReflectionClassToString;
+use Apie\StorageMetadata\Converters\ReflectionMethodToString;
 use Apie\StorageMetadata\Converters\SimpleXmlToString;
 use Apie\StorageMetadata\Converters\StringToBcMath;
 use Apie\StorageMetadata\Converters\StringToDateTime;
 use Apie\StorageMetadata\Converters\StringToDom;
 use Apie\StorageMetadata\Converters\StringToEnum;
 use Apie\StorageMetadata\Converters\StringToGMP;
+use Apie\StorageMetadata\Converters\StringToReflectionClass;
+use Apie\StorageMetadata\Converters\StringToReflectionMethod;
 use Apie\StorageMetadata\Converters\StringToSearchIndex;
 use Apie\StorageMetadata\Converters\StringToSimpleXml;
 use Apie\StorageMetadata\Converters\StringToUploadedFileInterface;
@@ -78,6 +82,10 @@ final class TypeConverterFactory
                 new StringToDom(),
                 new StringToSimpleXml(),
                 new StringToUrl(),
+                new StringToReflectionClass(),
+                new ReflectionMethodToString(),
+                new ReflectionClassToString(),
+                new StringToReflectionMethod(),
                 new UriToString(),
                 new StringToValueObject(),
                 new StringToEnum(),

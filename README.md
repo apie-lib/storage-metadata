@@ -16,7 +16,12 @@ The code is maintained in a monorepo, so PR's need to be sent to the [monorepo](
 ## Documentation
 This package is used to convert an Apie domain object to a storage DTO that can be used by data mapper ORM's. The creation of a storage DTO can be done by hand or created automatically by the package [apie/storage-metadata-builder](https://packagist.org/packages/apie/storage-metadata-builder).
 
-### Usage
+### Standalone usage
+Install it with:
+```bash
+composer require apie/storage-metadata
+```
+
 The simplest usage is using the simple static create method. In case you want to customize it you can create the object yourself.
 
 ```php

@@ -213,6 +213,6 @@ class DomainToStorageConverter
         if ($object instanceof \DatePeriod && in_array($property->getName(), ['start', 'end', 'interval', 'include_end_date', 'include_start_date', 'recurrences', 'current'])) {
             return false;
         }
-        return true;
+        return !$property->isReadOnly() || !$property->isInitialized($object);
     }
 }

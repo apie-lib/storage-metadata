@@ -145,7 +145,7 @@ final class DomainToStorageContext
      */
     private function clone(array $altered): self
     {
-        $properties = get_object_vars($this) + $altered;
+        $properties = $altered + get_object_vars($this);
         if (!isset($properties['parentContext'])) {
             $properties['parentContext'] = $this;
         }
