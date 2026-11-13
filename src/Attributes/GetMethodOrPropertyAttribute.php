@@ -43,7 +43,7 @@ class GetMethodOrPropertyAttribute extends PropertyAttribute
     ): ?ReflectionProperty {
         $method = $this->getReflectionMethod($targetClass, $instance);
         if ($method) {
-            $method->invoke($instance);
+            $method->invoke($method->isStatic() ? null : $instance);
         }
         return parent::getReflectionProperty($targetClass, $instance);
     }

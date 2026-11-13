@@ -25,7 +25,8 @@ class GetSearchIndexAttribute
     {
         $refl = ($this->declaredClass ? new ReflectionClass($this->declaredClass) : $targetClass);
         if ($refl->hasMethod($this->methodName)) {
-            return $refl->getMethod($this->methodName)->invoke($domainObject);
+            $method = $refl->getMethod($this->methodName);
+            return $method->invoke($method->isStatic() ? null : $domainObject);
         }
         return $refl->getProperty($this->methodName)->getValue($domainObject);
     }
