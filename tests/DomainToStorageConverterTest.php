@@ -42,13 +42,13 @@ class DomainToStorageConverterTest extends TestCase
         $domainObject = $this->createUserForDomainObject();
         $domainObject->setPassword(new Password('Aa1234!'));
         $this->assertTrue($domainObject->hasPassword(), 'hasPassword() should return true if it has a password');
-        $addressHash = spl_object_hash($domainObject->getAddress());
+        $addressHash = spl_object_id($domainObject->getAddress());
         $testItem = DomainToStorageConverter::create(FileStorageFactory::create());
         $testItem->injectExistingDomainObject(
             $domainObject,
             $this->createUserForStorage()
         );
-        $this->assertSame($addressHash, spl_object_hash($domainObject->getAddress()), 'I expect to have the same pointer');
+        $this->assertSame($addressHash, spl_object_id($domainObject->getAddress()), 'I expect to have the same pointer');
         $this->assertFalse($domainObject->hasPassword(), 'hasPassword() should return false after update from storage object');
     }
 
